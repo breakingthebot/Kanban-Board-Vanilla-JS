@@ -60,6 +60,17 @@ test("loadBoard removes corrupt data and reports recovery", () => {
   assert.equal(storage.getItem(STORAGE_KEY), null);
 });
 
+test("loadBoard recovers from valid JSON with an invalid state shape", () => {
+  const storage = createMemoryStorage();
+  storage.setItem(STORAGE_KEY, JSON.stringify({ cards: "not-an-array" }));
+
+  const result = loadBoard(storage);
+
+  assert.deepEqual(result.state, createInitialState());
+  assert.equal(result.recovered, true);
+  assert.equal(storage.getItem(STORAGE_KEY), null);
+});
+
 test("saveBoard rejects invalid state", () => {
   assert.throws(
     () => saveBoard(createMemoryStorage(), { cards: [{ id: "unsafe" }] }),
@@ -74,4 +85,14 @@ test("clearBoard removes saved state", () => {
   clearBoard(storage);
 
   assert.equal(storage.getItem(STORAGE_KEY), null);
+});
+
+test("storage access errors remain visible to the controller", () => {
+  const unavailableStorage = {
+    getItem() {
+      throw new Error("Storage blocked");
+    },
+  };
+
+  assert.throws(() => loadBoard(unavailableStorage), /Storage blocked/);
 });

@@ -15,6 +15,7 @@ A responsive, dependency-free Kanban board that moves cards between columns and 
 - CSS3
 - Vanilla JavaScript with ES modules
 - Node.js built-in test runner
+- GitHub Actions continuous integration
 - Browser `localStorage`
 
 No database or runtime framework is required.
@@ -54,6 +55,8 @@ Run JavaScript syntax validation and tests together:
 npm run check
 ```
 
+GitHub Actions runs the same command on every push and pull request using Node.js 22.
+
 ## Deployed
 
 No production deployment is configured yet.
@@ -73,6 +76,7 @@ The app is a small browser board with three clear layers. Configuration defines 
 
 - Board data stays in the current browser and is not synchronized between devices.
 - Native HTML drag-and-drop has limited touch support, so mobile movement uses the accessible arrow controls.
+- If browser storage is blocked or full, moves continue for the current session and the status message explains that they were not saved.
 - Resetting clears the saved state for this board.
 
 ## License

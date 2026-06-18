@@ -36,6 +36,15 @@ test("isValidState rejects unknown columns and duplicate card IDs", () => {
   assert.equal(isValidState(duplicateId), false);
 });
 
+test("isValidState rejects missing fields and non-object input", () => {
+  const missingDescription = createInitialState();
+  delete missingDescription.cards[0].description;
+
+  assert.equal(isValidState(missingDescription), false);
+  assert.equal(isValidState(null), false);
+  assert.equal(isValidState([]), false);
+});
+
 test("moveCard moves a card without mutating the original state", () => {
   const originalState = createInitialState();
   const cardId = originalState.cards[0].id;

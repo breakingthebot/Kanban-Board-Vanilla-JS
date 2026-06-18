@@ -85,9 +85,6 @@ export function createBoardController({
     try {
       state = moveCard(state, cardId, destinationColumnId);
       render();
-      saveBoard(storage, state);
-      const destination = COLUMNS.find((column) => column.id === destinationColumnId);
-      setStatus(`Card moved to ${destination.title}.`);
     } catch (error) {
       console.error("Unable to move card.", {
         cardId,
@@ -95,6 +92,23 @@ export function createBoardController({
         error: error.message,
       });
       setStatus("The card could not be moved. Please try again.", true);
+      return;
+    }
+
+    const destination = COLUMNS.find((column) => column.id === destinationColumnId);
+    try {
+      saveBoard(storage, state);
+      setStatus(`Card moved to ${destination.title}.`);
+    } catch (error) {
+      console.error("Unable to persist moved card.", {
+        cardId,
+        destinationColumnId,
+        error: error.message,
+      });
+      setStatus(
+        `Card moved to ${destination.title}, but storage is unavailable.`,
+        true,
+      );
     }
   }
 
@@ -149,14 +163,15 @@ export function createBoardController({
 
   /** Restores configured sample cards and removes persisted changes. */
   function reset() {
+    state = createInitialState();
+    render();
+
     try {
       clearBoard(storage);
-      state = createInitialState();
-      render();
       setStatus("Board reset to its starting cards.");
     } catch (error) {
       console.error("Unable to reset board.", { error: error.message });
-      setStatus("The board could not be reset. Please try again.", true);
+      setStatus("Board reset for this session, but storage is unavailable.", true);
     }
   }
 

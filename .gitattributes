@@ -1,0 +1,10 @@
+# .gitattributes
+# Normalizes repository text files to LF across development platforms.
+# Connects to: Git working trees and GitHub Actions.
+# Created: 2026-06-18
+
+* text=auto eol=lf
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
