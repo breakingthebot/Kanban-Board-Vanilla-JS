@@ -4,6 +4,8 @@
 // Created: 2026-06-18
 
 export const STORAGE_KEY = "kanban-board-state-v1";
+export const CARD_TITLE_MAX_LENGTH = 80;
+export const CARD_DESCRIPTION_MAX_LENGTH = 240;
 
 export const COLUMNS = Object.freeze([
   Object.freeze({ id: "todo", title: "To do" }),

@@ -4,8 +4,15 @@
 // Created: 2026-06-18
 
 import { createColumnElement } from "../components/column.js";
+import { createCardDialog } from "../components/card-dialog.js";
 import { COLUMNS } from "../config/board-config.js";
-import { createInitialState, moveCard } from "../models/board-state.js";
+import {
+  addCard,
+  createInitialState,
+  deleteCard,
+  moveCard,
+  updateCard,
+} from "../models/board-state.js";
 import { clearBoard, loadBoard, saveBoard } from "./board-storage.js";
 
 /**
@@ -14,6 +21,8 @@ import { clearBoard, loadBoard, saveBoard } from "./board-storage.js";
  * @param {HTMLElement} dependencies.boardElement Board container.
  * @param {HTMLElement} dependencies.statusElement Live status region.
  * @param {HTMLButtonElement} dependencies.resetButton Reset control.
+ * @param {HTMLButtonElement} dependencies.createButton Create-card control.
+ * @param {HTMLDialogElement} dependencies.dialogElement Card editor dialog.
  * @param {Storage} dependencies.storage Browser storage implementation.
  * @returns {{initialize: () => void}} Public controller API.
  */
@@ -21,9 +30,17 @@ export function createBoardController({
   boardElement,
   statusElement,
   resetButton,
+  createButton,
+  dialogElement,
   storage,
 }) {
   let state = createInitialState();
+  const cardDialog = createCardDialog({
+    dialogElement,
+    onSave: saveCard,
+    onDelete: removeCard,
+    confirmDelete: window.confirm.bind(window),
+  });
 
   /** Loads persisted data, binds static controls, and renders the board. */
   function initialize() {
@@ -43,6 +60,7 @@ export function createBoardController({
     }
 
     resetButton.addEventListener("click", reset);
+    createButton.addEventListener("click", cardDialog.openCreate);
     boardElement.addEventListener("dragstart", handleDragStart);
     boardElement.addEventListener("dragend", clearDropIndicators);
     boardElement.addEventListener("dragover", handleDragOver);
@@ -56,9 +74,47 @@ export function createBoardController({
     COLUMNS.forEach((column, index) => {
       const cards = state.cards.filter((card) => card.columnId === column.id);
       boardElement.append(
-        createColumnElement(column, cards, index, COLUMNS.length, moveByDirection),
+        createColumnElement(
+          column,
+          cards,
+          index,
+          COLUMNS.length,
+          moveByDirection,
+          openCardEditor,
+        ),
       );
     });
+  }
+
+  /** @param {string} cardId Card identifier to edit. */
+  function openCardEditor(cardId) {
+    const card = state.cards.find((candidate) => candidate.id === cardId);
+    if (card) cardDialog.openEdit(card);
+  }
+
+  /**
+   * Creates or updates a card and persists the new state.
+   * @param {string|null} cardId Existing card ID or null for creation.
+   * @param {object} input Untrusted form input.
+   * @returns {void}
+   */
+  function saveCard(cardId, input) {
+    state = cardId
+      ? updateCard(state, cardId, input)
+      : addCard(state, crypto.randomUUID(), input);
+    render();
+    persistState(cardId ? "Card updated." : "Card created.");
+  }
+
+  /**
+   * Deletes one card and persists the new state.
+   * @param {string} cardId Card identifier to delete.
+   * @returns {void}
+   */
+  function removeCard(cardId) {
+    state = deleteCard(state, cardId);
+    render();
+    persistState("Card deleted.");
   }
 
   /**
@@ -172,6 +228,21 @@ export function createBoardController({
     } catch (error) {
       console.error("Unable to reset board.", { error: error.message });
       setStatus("Board reset for this session, but storage is unavailable.", true);
+    }
+  }
+
+  /**
+   * Persists current state and reports whether the change is durable.
+   * @param {string} successMessage Message shown after successful persistence.
+   * @returns {void}
+   */
+  function persistState(successMessage) {
+    try {
+      saveBoard(storage, state);
+      setStatus(successMessage);
+    } catch (error) {
+      console.error("Unable to persist board state.", { error: error.message });
+      setStatus(`${successMessage} Storage is unavailable.`, true);
     }
   }
 

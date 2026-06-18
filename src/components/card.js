@@ -9,9 +9,10 @@
  * @param {number} columnIndex Current column position.
  * @param {number} columnCount Total column count.
  * @param {(cardId: string, direction: number) => void} onMove Move callback.
+ * @param {(cardId: string) => void} onEdit Edit callback.
  * @returns {HTMLElement} Fully configured card article.
  */
-export function createCardElement(card, columnIndex, columnCount, onMove) {
+export function createCardElement(card, columnIndex, columnCount, onMove, onEdit) {
   const article = document.createElement("article");
   article.className = "card";
   article.draggable = true;
@@ -30,6 +31,7 @@ export function createCardElement(card, columnIndex, columnCount, onMove) {
   controls.setAttribute("aria-label", `Move ${card.title}`);
 
   controls.append(
+    createEditButton(card.id, onEdit),
     createMoveButton("Move left", -1, columnIndex === 0, card.id, onMove),
     createMoveButton(
       "Move right",
@@ -42,6 +44,21 @@ export function createCardElement(card, columnIndex, columnCount, onMove) {
 
   article.append(title, description, controls);
   return article;
+}
+
+/**
+ * Creates the card edit button.
+ * @param {string} cardId Card identifier.
+ * @param {(cardId: string) => void} onEdit Edit callback.
+ * @returns {HTMLButtonElement} Configured edit button.
+ */
+function createEditButton(cardId, onEdit) {
+  const button = document.createElement("button");
+  button.className = "text-button";
+  button.type = "button";
+  button.textContent = "Edit";
+  button.addEventListener("click", () => onEdit(cardId));
+  return button;
 }
 
 /**

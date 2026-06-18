@@ -7,7 +7,7 @@ Created: 2026-06-18
 
 # Kanban Board
 
-A responsive, dependency-free Kanban board that moves cards between columns and saves the board in the browser.
+A responsive, dependency-free Kanban board for creating, editing, deleting, and moving cards with browser persistence.
 
 ## Stack
 
@@ -69,6 +69,8 @@ The app is a small browser board with three clear layers. Configuration defines 
 
 - Drag a card onto another column on desktop.
 - Use the arrow buttons on a card to move it with a mouse, touch input, or keyboard.
+- Select **Create card** to add validated work to any column.
+- Select **Edit** on a card to update its content, column, or delete it.
 - Reload the page to confirm card positions persist.
 - Select **Reset board** to restore the sample cards.
 
@@ -78,6 +80,7 @@ The app is a small browser board with three clear layers. Configuration defines 
 - Native HTML drag-and-drop has limited touch support, so mobile movement uses the accessible arrow controls.
 - If browser storage is blocked or full, moves continue for the current session and the status message explains that they were not saved.
 - Resetting clears the saved state for this board.
+- Titles are limited to 80 characters and descriptions to 240 characters.
 
 ## License
 

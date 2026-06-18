@@ -9,6 +9,21 @@ Created: 2026-06-18
 
 All notable changes to this project are documented here.
 
+## [1.2.0] - 2026-06-18
+
+### Added
+
+- Accessible card editor for creating and editing cards.
+- Card deletion with explicit confirmation.
+- Column selection and validated title and description limits.
+- Pure, immutable card create, update, and delete model operations.
+- Unit tests covering card management and invalid input.
+
+### Changed
+
+- Card controls now include an edit action.
+- Documentation now covers complete card management.
+
 ## [1.1.0] - 2026-06-18
 
 ### Added

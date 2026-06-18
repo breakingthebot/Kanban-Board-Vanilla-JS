@@ -51,6 +51,11 @@ button:focus-visible,
   margin: 0 auto 2rem;
 }
 
+.header-actions {
+  display: flex;
+  gap: 0.75rem;
+}
+
 h1,
 h2,
 h3,
@@ -110,6 +115,22 @@ h1 {
 .button:hover {
   border-color: var(--accent);
   color: var(--accent);
+}
+
+.button--primary {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: #ffffff;
+}
+
+.button--primary:hover {
+  background: #2446b7;
+  color: #ffffff;
+}
+
+.button--danger {
+  border-color: #fecdca;
+  color: var(--danger);
 }
 
 .board {
@@ -203,6 +224,85 @@ h1 {
   color: #344054;
 }
 
+.text-button {
+  margin-right: auto;
+  border: 0;
+  background: transparent;
+  color: var(--accent);
+  cursor: pointer;
+  font-weight: 650;
+}
+
+.dialog {
+  width: min(92vw, 520px);
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: 0 24px 60px rgb(16 24 40 / 24%);
+}
+
+.dialog::backdrop {
+  background: rgb(16 24 40 / 55%);
+}
+
+.card-form {
+  display: grid;
+  gap: 0.6rem;
+  padding: 1.25rem;
+}
+
+.card-form label {
+  margin-top: 0.4rem;
+  font-size: 0.875rem;
+  font-weight: 650;
+}
+
+.card-form input,
+.card-form textarea,
+.card-form select {
+  width: 100%;
+  padding: 0.7rem 0.8rem;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  background: #ffffff;
+  color: #182230;
+  font: inherit;
+}
+
+.card-form input:focus,
+.card-form textarea:focus,
+.card-form select:focus {
+  border-color: var(--accent);
+  outline: 3px solid #d6e0ff;
+}
+
+.dialog__header,
+.dialog__actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.dialog__header h2 {
+  margin-bottom: 0;
+}
+
+.dialog__actions {
+  margin-top: 0.75rem;
+}
+
+.dialog__actions .button--primary {
+  margin-left: auto;
+}
+
+.form-error {
+  min-height: 1.25rem;
+  margin-bottom: 0;
+  color: var(--danger);
+  font-size: 0.875rem;
+}
+
 .icon-button:hover:not(:disabled) {
   border-color: var(--accent);
   color: var(--accent);
@@ -226,6 +326,14 @@ h1 {
   .app-header {
     align-items: flex-start;
     flex-direction: column;
+  }
+
+  .header-actions {
+    width: 100%;
+  }
+
+  .header-actions .button {
+    flex: 1;
   }
 
   .board {
