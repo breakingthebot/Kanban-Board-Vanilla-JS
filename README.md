@@ -65,6 +65,10 @@ npm run test:e2e
 
 GitHub Actions runs the same command on every push and pull request using Node.js 22.
 
+## Development Workflow
+
+Create focused branches from `main`, run unit and browser checks before pushing, and open pull requests for review instead of committing directly to `main`. See [CONTRIBUTING.md](CONTRIBUTING.md) for branch, commit, pull request, and release requirements.
+
 ## Deployed
 
 Production deployment is managed through the Vercel CLI. The deployed URL is added after the first successful production release.

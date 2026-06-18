@@ -9,6 +9,17 @@ Created: 2026-06-18
 
 All notable changes to this project are documented here.
 
+## [Unreleased]
+
+### Added
+
+- Contribution guide covering setup, checks, pull requests, deployment, and releases.
+- Pull request template requiring validation and documentation evidence.
+
+### Changed
+
+- README now documents the branch-based development workflow.
+
 ## [1.4.0] - 2026-06-18
 
 ### Added
