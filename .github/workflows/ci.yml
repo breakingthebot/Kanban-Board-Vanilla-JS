@@ -1,6 +1,6 @@
 # .github/workflows/ci.yml
-# Runs deterministic syntax and unit-test checks for every branch update and pull request.
-# Connects to: package.json, package-lock.json, source modules, and tests.
+# Runs syntax, unit, browser, responsive, and accessibility checks for repository changes.
+# Connects to: package scripts, Playwright configuration, source modules, and tests.
 # Created: 2026-06-18
 
 name: CI
@@ -16,7 +16,7 @@ jobs:
   test:
     name: Test on Node.js 22
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 10
 
     steps:
       - name: Check out repository
@@ -33,3 +33,9 @@ jobs:
 
       - name: Run checks
         run: npm run check
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Run browser and accessibility tests
+        run: npm run test:e2e

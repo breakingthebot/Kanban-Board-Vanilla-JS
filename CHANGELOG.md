@@ -9,6 +9,21 @@ Created: 2026-06-18
 
 All notable changes to this project are documented here.
 
+## [1.4.0] - 2026-06-18
+
+### Added
+
+- Playwright end-to-end tests for desktop and mobile Chromium.
+- Axe accessibility scans for serious and critical WCAG violations.
+- Browser coverage for card CRUD, persistence, keyboard ordering, and mouse dragging.
+- Vercel deployment configuration with restrictive security headers.
+- CI installation and execution of browser tests.
+
+### Changed
+
+- Test documentation now includes browser installation and end-to-end commands.
+- Generated Playwright artifacts are excluded from Git and deployments.
+
 ## [1.3.0] - 2026-06-18
 
 ### Added

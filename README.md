@@ -15,6 +15,7 @@ A responsive, dependency-free Kanban board for creating, editing, deleting, and 
 - CSS3
 - Vanilla JavaScript with ES modules
 - Node.js built-in test runner
+- Playwright browser testing with Axe accessibility scanning
 - GitHub Actions continuous integration
 - Browser `localStorage`
 
@@ -55,15 +56,22 @@ Run JavaScript syntax validation and tests together:
 npm run check
 ```
 
+Install the Chromium test browser once, then run end-to-end tests:
+
+```powershell
+npm run test:e2e:install
+npm run test:e2e
+```
+
 GitHub Actions runs the same command on every push and pull request using Node.js 22.
 
 ## Deployed
 
-No production deployment is configured yet.
+Production deployment is managed through the Vercel CLI. The deployed URL is added after the first successful production release.
 
 ## Architecture Notes
 
-The app is a small browser board with three clear layers. Configuration defines the columns and starter cards. Pure model functions validate, order, and move cards without touching the page, while storage owns serialization to one versioned `localStorage` key. UI components create DOM elements with `textContent`; a dedicated drag service translates mouse, touch, and pen gestures into placements; and the controller coordinates state, rendering, persistence, and feedback. This separation keeps ordering rules testable without a browser or third-party packages.
+The app is a small browser board with three clear layers. Configuration defines the columns and starter cards. Pure model functions validate, order, and move cards without touching the page, while storage owns serialization to one versioned `localStorage` key. UI components create DOM elements with `textContent`; a dedicated drag service translates mouse, touch, and pen gestures into placements; and the controller coordinates state, rendering, persistence, and feedback. Unit tests cover isolated rules, while Playwright exercises complete desktop and mobile workflows and Axe checks WCAG-impacting accessibility failures.
 
 ## Usage
 
@@ -82,6 +90,7 @@ The app is a small browser board with three clear layers. Configuration defines 
 - If browser storage is blocked or full, moves continue for the current session and the status message explains that they were not saved.
 - Resetting clears the saved state for this board.
 - Titles are limited to 80 characters and descriptions to 240 characters.
+- Vercel responses apply CSP, referrer, permissions, and MIME-sniffing security headers.
 
 ## License
 

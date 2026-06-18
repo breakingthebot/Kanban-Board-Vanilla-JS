@@ -1,0 +1,113 @@
+// tests/e2e/board.spec.js
+// Verifies complete browser workflows, persistence, ordering, responsive behavior, and accessibility.
+// Connects to: index.html, src application modules, Playwright, and Axe.
+// Created: 2026-06-18
+
+import AxeBuilder from "@axe-core/playwright";
+import { expect, test } from "@playwright/test";
+
+test.beforeEach(async ({ page }) => {
+  await page.goto("/");
+  await page.evaluate(() => window.localStorage.clear());
+  await page.reload();
+});
+
+test("renders a usable board without serious accessibility violations", async ({
+  page,
+}) => {
+  await expect(page.getByRole("heading", { name: "Kanban Board" })).toBeVisible();
+  await expect(page.locator(".column")).toHaveCount(3);
+  await expect(page.locator(".card")).toHaveCount(3);
+
+  const accessibilityScan = await new AxeBuilder({ page })
+    .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"])
+    .analyze();
+  const blockingViolations = accessibilityScan.violations.filter(
+    (violation) => violation.impact === "serious" || violation.impact === "critical",
+  );
+
+  expect(blockingViolations).toEqual([]);
+});
+
+test("creates, edits, moves, persists, and deletes a card", async ({ page }) => {
+  await createCard(page, "Release checklist", "Confirm launch tasks", "todo");
+  await page.reload();
+
+  const createdCard = page.locator(".card", { hasText: "Release checklist" });
+  await expect(createdCard).toBeVisible();
+  await createdCard.getByRole("button", { name: "Edit" }).click();
+
+  const editor = page.getByRole("dialog", { name: "Edit card" });
+  await editor.getByLabel("Title").fill("Production checklist");
+  await editor.getByLabel("Description").fill("Confirm the production launch tasks");
+  await editor.getByLabel("Column").selectOption("done");
+  await editor.getByRole("button", { name: "Save card" }).click();
+  await page.reload();
+
+  const updatedCard = page.locator(".card", { hasText: "Production checklist" });
+  await expect(updatedCard).toBeVisible();
+  await expect(updatedCard.locator("xpath=ancestor::section")).toHaveAttribute(
+    "data-column-id",
+    "done",
+  );
+
+  await updatedCard.getByRole("button", { name: "Edit" }).click();
+  page.once("dialog", (confirmation) => confirmation.accept());
+  await page.getByRole("dialog", { name: "Edit card" })
+    .getByRole("button", { name: "Delete" })
+    .click();
+  await page.reload();
+
+  await expect(page.locator(".card", { hasText: "Production checklist" })).toHaveCount(0);
+});
+
+test("preserves keyboard and mouse ordering after reload", async ({ page }) => {
+  await createCard(page, "Second task", "", "todo");
+  await createCard(page, "Third task", "", "todo");
+
+  const thirdCard = page.locator(".card", { hasText: "Third task" });
+  await thirdCard.getByRole("button", { name: "Move up" }).click();
+  await expect(todoTitles(page)).toHaveText([
+    "Review project requirements",
+    "Third task",
+    "Second task",
+  ]);
+
+  const firstCard = page.locator(".card", { hasText: "Review project requirements" });
+  await page.locator(".card", { hasText: "Second task" }).dragTo(firstCard, {
+    targetPosition: { x: 20, y: 2 },
+  });
+  await page.reload();
+
+  await expect(todoTitles(page)).toHaveText([
+    "Second task",
+    "Review project requirements",
+    "Third task",
+  ]);
+});
+
+/**
+ * Creates one card through the public dialog workflow.
+ * @param {import("@playwright/test").Page} page Active browser page.
+ * @param {string} title Card title.
+ * @param {string} description Card description.
+ * @param {string} columnId Destination column identifier.
+ * @returns {Promise<void>}
+ */
+async function createCard(page, title, description, columnId) {
+  await page.getByRole("button", { name: "Create card" }).click();
+  const editor = page.getByRole("dialog", { name: "Create card" });
+  await editor.getByLabel("Title").fill(title);
+  await editor.getByLabel("Description").fill(description);
+  await editor.getByLabel("Column").selectOption(columnId);
+  await editor.getByRole("button", { name: "Save card" }).click();
+}
+
+/**
+ * Selects task titles in visual order from the To do column.
+ * @param {import("@playwright/test").Page} page Active browser page.
+ * @returns {import("@playwright/test").Locator} Ordered title locator.
+ */
+function todoTitles(page) {
+  return page.locator('[data-column-id="todo"] .card h3');
+}
