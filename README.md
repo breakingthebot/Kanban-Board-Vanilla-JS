@@ -63,12 +63,13 @@ No production deployment is configured yet.
 
 ## Architecture Notes
 
-The app is a small browser board with three clear layers. Configuration defines the columns and starter cards. Pure model functions validate and move cards without touching the page, while the storage service owns serialization to one versioned `localStorage` key. UI components create DOM elements with `textContent`, and a controller coordinates rendering, persistence, drag events, keyboard-accessible move buttons, reset behavior, and user-facing status messages. This separation keeps the state rules testable without a browser or third-party packages.
+The app is a small browser board with three clear layers. Configuration defines the columns and starter cards. Pure model functions validate, order, and move cards without touching the page, while storage owns serialization to one versioned `localStorage` key. UI components create DOM elements with `textContent`; a dedicated drag service translates mouse, touch, and pen gestures into placements; and the controller coordinates state, rendering, persistence, and feedback. This separation keeps ordering rules testable without a browser or third-party packages.
 
 ## Usage
 
-- Drag a card onto another column on desktop.
-- Use the arrow buttons on a card to move it with a mouse, touch input, or keyboard.
+- Drag a card to an exact position with a mouse on desktop.
+- Drag from the card handle with touch or pen input.
+- Use the up, down, left, and right buttons for keyboard-accessible ordering.
 - Select **Create card** to add validated work to any column.
 - Select **Edit** on a card to update its content, column, or delete it.
 - Reload the page to confirm card positions persist.
@@ -77,7 +78,7 @@ The app is a small browser board with three clear layers. Configuration defines 
 ## Notes
 
 - Board data stays in the current browser and is not synchronized between devices.
-- Native HTML drag-and-drop has limited touch support, so mobile movement uses the accessible arrow controls.
+- Touch and pen dragging starts only from the card handle so normal board scrolling remains available.
 - If browser storage is blocked or full, moves continue for the current session and the status message explains that they were not saved.
 - Resetting clears the saved state for this board.
 - Titles are limited to 80 characters and descriptions to 240 characters.

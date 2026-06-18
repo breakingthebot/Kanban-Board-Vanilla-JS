@@ -9,6 +9,21 @@ Created: 2026-06-18
 
 All notable changes to this project are documented here.
 
+## [1.3.0] - 2026-06-18
+
+### Added
+
+- Exact card ordering within each column.
+- Touch and pen dragging through a dedicated card handle.
+- Keyboard-accessible up and down ordering controls.
+- Visible insertion indicators during drag operations.
+- Unit tests for cross-column placement, reordering, and invalid targets.
+
+### Changed
+
+- Desktop drops now preserve the selected insertion position.
+- Drag gesture handling now lives in a dedicated service.
+
 ## [1.2.0] - 2026-06-18
 
 ### Added

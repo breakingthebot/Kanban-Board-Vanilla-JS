@@ -59,24 +59,63 @@ export function isValidState(state) {
  * @throws {Error} When the card or destination does not exist.
  */
 export function moveCard(state, cardId, destinationColumnId) {
+  return placeCard(state, cardId, destinationColumnId, null);
+}
+
+/**
+ * Places a card at an exact column position without mutating existing state.
+ * @param {{cards: Array<object>}} state Current board state.
+ * @param {string} cardId Card identifier to place.
+ * @param {string} destinationColumnId Destination column identifier.
+ * @param {string|null} beforeCardId Destination card to insert before, or null for last.
+ * @returns {{cards: Array<object>}} Immutably reordered board state.
+ * @throws {Error} When a card or destination is invalid.
+ */
+export function placeCard(state, cardId, destinationColumnId, beforeCardId) {
   const destinationExists = COLUMNS.some(
     (column) => column.id === destinationColumnId,
   );
-  const cardExists = state.cards.some((card) => card.id === cardId);
+  const movingCard = state.cards.find((card) => card.id === cardId);
 
   if (!destinationExists) {
     throw new Error(`Cannot move card: unknown column "${destinationColumnId}".`);
   }
 
-  if (!cardExists) {
+  if (!movingCard) {
     throw new Error(`Cannot move card: unknown card "${cardId}".`);
   }
 
-  return {
-    cards: state.cards.map((card) =>
-      card.id === cardId ? { ...card, columnId: destinationColumnId } : { ...card },
-    ),
-  };
+  if (beforeCardId === cardId) {
+    return { cards: state.cards.map((card) => ({ ...card })) };
+  }
+
+  const remainingCards = state.cards
+    .filter((card) => card.id !== cardId)
+    .map((card) => ({ ...card }));
+  let insertionIndex = remainingCards.length;
+
+  if (beforeCardId !== null) {
+    insertionIndex = remainingCards.findIndex((card) => card.id === beforeCardId);
+    const targetCard = remainingCards[insertionIndex];
+
+    if (!targetCard || targetCard.columnId !== destinationColumnId) {
+      throw new Error(`Cannot place card: invalid target "${beforeCardId}".`);
+    }
+  } else {
+    const destinationIndexes = remainingCards
+      .map((card, index) => (card.columnId === destinationColumnId ? index : -1))
+      .filter((index) => index >= 0);
+
+    if (destinationIndexes.length > 0) {
+      insertionIndex = destinationIndexes.at(-1) + 1;
+    }
+  }
+
+  remainingCards.splice(insertionIndex, 0, {
+    ...movingCard,
+    columnId: destinationColumnId,
+  });
+  return { cards: remainingCards };
 }
 
 /**

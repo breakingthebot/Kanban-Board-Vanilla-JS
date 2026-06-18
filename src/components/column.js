@@ -11,7 +11,8 @@ import { createCardElement } from "./card.js";
  * @param {Array<object>} cards Cards assigned to the column.
  * @param {number} columnIndex Current column position.
  * @param {number} columnCount Total number of columns.
- * @param {(cardId: string, direction: number) => void} onMove Move callback.
+ * @param {(cardId: string, direction: number) => void} onMoveColumn Column move callback.
+ * @param {(cardId: string, direction: number) => void} onReorder Reorder callback.
  * @param {(cardId: string) => void} onEdit Edit callback.
  * @returns {HTMLElement} Configured column section.
  */
@@ -20,7 +21,8 @@ export function createColumnElement(
   cards,
   columnIndex,
   columnCount,
-  onMove,
+  onMoveColumn,
+  onReorder,
   onEdit,
 ) {
   const section = document.createElement("section");
@@ -49,9 +51,18 @@ export function createColumnElement(
     emptyState.textContent = "Drop a card here";
     cardList.append(emptyState);
   } else {
-    cards.forEach((card) => {
+    cards.forEach((card, cardIndex) => {
       cardList.append(
-        createCardElement(card, columnIndex, columnCount, onMove, onEdit),
+        createCardElement(
+          card,
+          columnIndex,
+          columnCount,
+          cardIndex,
+          cards.length,
+          onMoveColumn,
+          onReorder,
+          onEdit,
+        ),
       );
     });
   }

@@ -10,10 +10,11 @@ import {
   addCard,
   createInitialState,
   deleteCard,
-  moveCard,
+  placeCard,
   updateCard,
 } from "../models/board-state.js";
 import { clearBoard, loadBoard, saveBoard } from "./board-storage.js";
+import { createCardDragManager } from "./card-drag.js";
 
 /**
  * Creates the board controller around explicit DOM and storage dependencies.
@@ -41,6 +42,10 @@ export function createBoardController({
     onDelete: removeCard,
     confirmDelete: window.confirm.bind(window),
   });
+  const dragManager = createCardDragManager({
+    boardElement,
+    onDrop: updateCardPosition,
+  });
 
   /** Loads persisted data, binds static controls, and renders the board. */
   function initialize() {
@@ -61,11 +66,7 @@ export function createBoardController({
 
     resetButton.addEventListener("click", reset);
     createButton.addEventListener("click", cardDialog.openCreate);
-    boardElement.addEventListener("dragstart", handleDragStart);
-    boardElement.addEventListener("dragend", clearDropIndicators);
-    boardElement.addEventListener("dragover", handleDragOver);
-    boardElement.addEventListener("dragleave", handleDragLeave);
-    boardElement.addEventListener("drop", handleDrop);
+    dragManager.initialize();
   }
 
   /** Rebuilds board columns from the current state. */
@@ -80,6 +81,7 @@ export function createBoardController({
           index,
           COLUMNS.length,
           moveByDirection,
+          reorderByDirection,
           openCardEditor,
         ),
       );
@@ -128,18 +130,43 @@ export function createBoardController({
     const destination = COLUMNS[currentIndex + direction];
 
     if (destination) {
-      updateCardPosition(cardId, destination.id);
+      updateCardPosition(cardId, destination.id, null);
     }
+  }
+
+  /**
+   * Moves a card one position within its current column.
+   * @param {string} cardId Card identifier.
+   * @param {number} direction Negative for up, positive for down.
+   */
+  function reorderByDirection(cardId, direction) {
+    const card = state.cards.find((candidate) => candidate.id === cardId);
+    if (!card) return;
+
+    const columnCards = state.cards.filter(
+      (candidate) => candidate.columnId === card.columnId,
+    );
+    const currentIndex = columnCards.findIndex((candidate) => candidate.id === cardId);
+
+    if (direction < 0 && currentIndex === 0) return;
+    if (direction > 0 && currentIndex === columnCards.length - 1) return;
+
+    const beforeCardId =
+      direction < 0
+        ? columnCards[currentIndex - 1].id
+        : columnCards[currentIndex + 2]?.id ?? null;
+    updateCardPosition(cardId, card.columnId, beforeCardId);
   }
 
   /**
    * Updates state, saves it, and reports the completed card movement.
    * @param {string} cardId Card identifier.
    * @param {string} destinationColumnId Destination column identifier.
+   * @param {string|null} beforeCardId Card to insert before, or null for last.
    */
-  function updateCardPosition(cardId, destinationColumnId) {
+  function updateCardPosition(cardId, destinationColumnId, beforeCardId) {
     try {
-      state = moveCard(state, cardId, destinationColumnId);
+      state = placeCard(state, cardId, destinationColumnId, beforeCardId);
       render();
     } catch (error) {
       console.error("Unable to move card.", {
@@ -166,55 +193,6 @@ export function createBoardController({
         true,
       );
     }
-  }
-
-  /** @param {DragEvent} event Native drag-start event. */
-  function handleDragStart(event) {
-    const card = event.target.closest(".card");
-    if (!card || !event.dataTransfer) return;
-
-    event.dataTransfer.effectAllowed = "move";
-    event.dataTransfer.setData("text/plain", card.dataset.cardId);
-    card.classList.add("card--dragging");
-  }
-
-  /** @param {DragEvent} event Native drag-over event. */
-  function handleDragOver(event) {
-    const column = event.target.closest(".column");
-    if (!column) return;
-
-    event.preventDefault();
-    clearDropIndicators();
-    column.classList.add("column--drop-target");
-  }
-
-  /** @param {DragEvent} event Native drag-leave event. */
-  function handleDragLeave(event) {
-    const column = event.target.closest(".column");
-    if (column && !column.contains(event.relatedTarget)) {
-      column.classList.remove("column--drop-target");
-    }
-  }
-
-  /** @param {DragEvent} event Native drop event. */
-  function handleDrop(event) {
-    const column = event.target.closest(".column");
-    if (!column || !event.dataTransfer) return;
-
-    event.preventDefault();
-    const cardId = event.dataTransfer.getData("text/plain");
-    clearDropIndicators();
-    updateCardPosition(cardId, column.dataset.columnId);
-  }
-
-  /** Removes visual drag state from every card and column. */
-  function clearDropIndicators() {
-    boardElement.querySelectorAll(".card--dragging").forEach((card) => {
-      card.classList.remove("card--dragging");
-    });
-    boardElement.querySelectorAll(".column--drop-target").forEach((column) => {
-      column.classList.remove("column--drop-target");
-    });
   }
 
   /** Restores configured sample cards and removes persisted changes. */

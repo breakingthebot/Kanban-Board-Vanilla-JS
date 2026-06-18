@@ -1,6 +1,6 @@
 // src/components/card.js
-// Builds one draggable card and its accessible movement controls.
-// Connects to: components/column.js and services/board-controller.js.
+// Builds one draggable card with pointer, editing, and accessible movement controls.
+// Connects to: components/column.js and services/card-drag.js.
 // Created: 2026-06-18
 
 /**
@@ -8,11 +8,23 @@
  * @param {object} card Serializable card data.
  * @param {number} columnIndex Current column position.
  * @param {number} columnCount Total column count.
- * @param {(cardId: string, direction: number) => void} onMove Move callback.
+ * @param {number} cardIndex Current position within the column.
+ * @param {number} cardCount Number of cards in the column.
+ * @param {(cardId: string, direction: number) => void} onMoveColumn Column move callback.
+ * @param {(cardId: string, direction: number) => void} onReorder Reorder callback.
  * @param {(cardId: string) => void} onEdit Edit callback.
  * @returns {HTMLElement} Fully configured card article.
  */
-export function createCardElement(card, columnIndex, columnCount, onMove, onEdit) {
+export function createCardElement(
+  card,
+  columnIndex,
+  columnCount,
+  cardIndex,
+  cardCount,
+  onMoveColumn,
+  onReorder,
+  onEdit,
+) {
   const article = document.createElement("article");
   article.className = "card";
   article.draggable = true;
@@ -23,6 +35,10 @@ export function createCardElement(card, columnIndex, columnCount, onMove, onEdit
   const title = document.createElement("h3");
   title.textContent = card.title;
 
+  const cardHeader = document.createElement("div");
+  cardHeader.className = "card__header";
+  cardHeader.append(title, createDragHandle(card.title));
+
   const description = document.createElement("p");
   description.textContent = card.description;
 
@@ -32,18 +48,49 @@ export function createCardElement(card, columnIndex, columnCount, onMove, onEdit
 
   controls.append(
     createEditButton(card.id, onEdit),
-    createMoveButton("Move left", -1, columnIndex === 0, card.id, onMove),
+    createMoveButton("Move up", "\u2191", -1, cardIndex === 0, card.id, onReorder),
+    createMoveButton(
+      "Move down",
+      "\u2193",
+      1,
+      cardIndex === cardCount - 1,
+      card.id,
+      onReorder,
+    ),
+    createMoveButton(
+      "Move left",
+      "\u2190",
+      -1,
+      columnIndex === 0,
+      card.id,
+      onMoveColumn,
+    ),
     createMoveButton(
       "Move right",
+      "\u2192",
       1,
       columnIndex === columnCount - 1,
       card.id,
-      onMove,
+      onMoveColumn,
     ),
   );
 
-  article.append(title, description, controls);
+  article.append(cardHeader, description, controls);
   return article;
+}
+
+/**
+ * Creates a dedicated touch/pen drag handle without hijacking page scrolling.
+ * @param {string} cardTitle Card title for the accessible label.
+ * @returns {HTMLSpanElement} Pointer-only drag handle.
+ */
+function createDragHandle(cardTitle) {
+  const handle = document.createElement("span");
+  handle.className = "drag-handle";
+  handle.dataset.dragLabel = cardTitle;
+  handle.setAttribute("aria-hidden", "true");
+  handle.textContent = "\u283F";
+  return handle;
 }
 
 /**
@@ -64,19 +111,20 @@ function createEditButton(cardId, onEdit) {
 /**
  * Creates one directional card movement button.
  * @param {string} label Accessible button label.
- * @param {number} direction Negative for left, positive for right.
+ * @param {string} symbol Visible directional symbol.
+ * @param {number} direction Negative for up/left, positive for down/right.
  * @param {boolean} disabled Whether movement is unavailable.
  * @param {string} cardId Card identifier.
  * @param {(cardId: string, direction: number) => void} onMove Move callback.
  * @returns {HTMLButtonElement} Configured movement button.
  */
-function createMoveButton(label, direction, disabled, cardId, onMove) {
+function createMoveButton(label, symbol, direction, disabled, cardId, onMove) {
   const button = document.createElement("button");
   button.className = "icon-button";
   button.type = "button";
   button.disabled = disabled;
   button.setAttribute("aria-label", label);
-  button.textContent = direction < 0 ? "←" : "→";
+  button.textContent = symbol;
   button.addEventListener("click", () => onMove(cardId, direction));
   return button;
 }

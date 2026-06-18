@@ -12,6 +12,7 @@ import {
   deleteCard,
   isValidState,
   moveCard,
+  placeCard,
   updateCard,
 } from "../../src/models/board-state.js";
 
@@ -64,7 +65,10 @@ test("moveCard moves a card without mutating the original state", () => {
   const movedState = moveCard(originalState, cardId, "done");
 
   assert.equal(originalState.cards[0].columnId, "todo");
-  assert.equal(movedState.cards[0].columnId, "done");
+  assert.equal(
+    movedState.cards.find((card) => card.id === cardId).columnId,
+    "done",
+  );
   assert.notStrictEqual(movedState, originalState);
 });
 
@@ -73,6 +77,66 @@ test("moveCard rejects missing cards and columns", () => {
 
   assert.throws(() => moveCard(state, "missing", "done"), /unknown card/);
   assert.throws(() => moveCard(state, state.cards[0].id, "missing"), /unknown column/);
+});
+
+test("placeCard inserts before an exact card in another column", () => {
+  let state = createInitialState();
+  state = addCard(state, "card-second-done", {
+    title: "Second done task",
+    description: "",
+    columnId: "done",
+  });
+
+  const movingId = state.cards.find((card) => card.columnId === "todo").id;
+  const firstDoneId = state.cards.find((card) => card.columnId === "done").id;
+  const result = placeCard(state, movingId, "done", firstDoneId);
+  const doneIds = result.cards
+    .filter((card) => card.columnId === "done")
+    .map((card) => card.id);
+
+  assert.deepEqual(doneIds, [movingId, firstDoneId, "card-second-done"]);
+});
+
+test("placeCard reorders within a column and appends at column end", () => {
+  let state = createInitialState();
+  state = addCard(state, "card-todo-two", {
+    title: "Second task",
+    description: "",
+    columnId: "todo",
+  });
+  state = addCard(state, "card-todo-three", {
+    title: "Third task",
+    description: "",
+    columnId: "todo",
+  });
+
+  const firstTodoId = state.cards.find((card) => card.columnId === "todo").id;
+  const reordered = placeCard(state, "card-todo-three", "todo", firstTodoId);
+  const appended = placeCard(reordered, "card-todo-three", "todo", null);
+
+  assert.deepEqual(
+    reordered.cards.filter((card) => card.columnId === "todo").map((card) => card.id),
+    ["card-todo-three", firstTodoId, "card-todo-two"],
+  );
+  assert.deepEqual(
+    appended.cards.filter((card) => card.columnId === "todo").map((card) => card.id),
+    [firstTodoId, "card-todo-two", "card-todo-three"],
+  );
+});
+
+test("placeCard rejects invalid insertion targets", () => {
+  const state = createInitialState();
+  const movingId = state.cards.find((card) => card.columnId === "todo").id;
+  const wrongColumnTarget = state.cards.find((card) => card.columnId === "done").id;
+
+  assert.throws(
+    () => placeCard(state, movingId, "todo", "missing"),
+    /invalid target/,
+  );
+  assert.throws(
+    () => placeCard(state, movingId, "todo", wrongColumnTarget),
+    /invalid target/,
+  );
 });
 
 test("addCard trims valid input without mutating existing state", () => {
