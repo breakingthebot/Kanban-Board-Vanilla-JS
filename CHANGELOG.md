@@ -19,6 +19,7 @@ All notable changes to this project are documented here.
 ### Changed
 
 - README now documents the branch-based development workflow.
+- Browser tests now scope column assertions to an exact `data-column-id` target.
 
 ## [1.4.0] - 2026-06-18
 

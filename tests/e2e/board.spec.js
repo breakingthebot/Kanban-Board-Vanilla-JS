@@ -46,10 +46,11 @@ test("creates, edits, moves, persists, and deletes a card", async ({ page }) => 
 
   const updatedCard = page.locator(".card", { hasText: "Production checklist" });
   await expect(updatedCard).toBeVisible();
-  await expect(updatedCard.locator("xpath=ancestor::section")).toHaveAttribute(
-    "data-column-id",
-    "done",
-  );
+  await expect(
+    page.locator('[data-column-id="done"] .card', {
+      hasText: "Production checklist",
+    }),
+  ).toBeVisible();
 
   await updatedCard.getByRole("button", { name: "Edit" }).click();
   page.once("dialog", (confirmation) => confirmation.accept());
