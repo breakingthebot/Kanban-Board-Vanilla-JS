@@ -1,0 +1,40 @@
+<!--
+  index.html
+  Defines the semantic application shell and status regions for the Kanban board.
+  Connects to: src/main.js and src/styles/index.css.
+  Created: 2026-06-18
+-->
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="A lightweight Kanban board with persistent drag-and-drop cards."
+    />
+    <title>Kanban Board</title>
+    <link rel="stylesheet" href="./src/styles/index.css" />
+  </head>
+  <body>
+    <header class="app-header">
+      <div>
+        <p class="eyebrow">Project workspace</p>
+        <h1>Kanban Board</h1>
+        <p class="subtitle">Move work forward, one card at a time.</p>
+      </div>
+      <button id="reset-board" class="button button--secondary" type="button">
+        Reset board
+      </button>
+    </header>
+
+    <main>
+      <p id="board-status" class="status" role="status" aria-live="polite">
+        Loading board…
+      </p>
+      <section id="board" class="board" aria-label="Project Kanban board"></section>
+    </main>
+
+    <script type="module" src="./src/main.js"></script>
+  </body>
+</html>
