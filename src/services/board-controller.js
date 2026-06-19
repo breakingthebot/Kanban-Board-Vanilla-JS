@@ -336,7 +336,7 @@ export function createBoardController({
 
     const countsText = summary.columnMatches
       .map((column) => `${column.title}: ${column.count}`)
-      .join(" · ");
+      .join(" | ");
     searchSummaryElement.append(document.createTextNode(` ${countsText}`));
   }
 
