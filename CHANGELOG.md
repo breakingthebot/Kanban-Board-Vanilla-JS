@@ -13,6 +13,8 @@ All notable changes to this project are documented here.
 
 ### Added
 
+- Live board search across card titles and descriptions.
+- Search service and tests for matching cards by query.
 - Keyboard shortcuts for session undo and redo.
 - Session-based undo and redo controls for recent board changes.
 - Board history service and tests for recording, undoing, and redoing state snapshots.
@@ -24,9 +26,16 @@ All notable changes to this project are documented here.
 
 ### Changed
 
-- Package version bumped to 1.8.0 for the keyboard-shortcut release.
+- Package version bumped to 1.9.0 for the search release.
 - README now documents the branch-based development workflow.
 - Browser tests now scope column assertions to an exact `data-column-id` target.
+
+## [1.9.0] - 2026-06-18
+
+### Added
+
+- Live filtering of cards by search term.
+- Browser coverage for filtering and clearing the search field.
 
 ## [1.8.0] - 2026-06-18
 

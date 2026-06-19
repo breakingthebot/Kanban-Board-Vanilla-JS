@@ -142,6 +142,18 @@ test("uses keyboard shortcuts to undo and redo without affecting text inputs", a
   await expect(page.locator(".card", { hasText: "Shortcut task" })).toBeVisible();
 });
 
+test("filters cards with the search field and clears the filter", async ({ page }) => {
+  const search = page.getByLabel("Search cards");
+
+  await search.fill("responsive");
+  await expect(page.locator(".card")).toHaveCount(1);
+  await expect(page.locator(".card", { hasText: "Build the board layout" })).toBeVisible();
+
+  await page.getByRole("button", { name: "Clear search" }).click();
+  await expect(search).toHaveValue("");
+  await expect(page.locator(".card")).toHaveCount(3);
+});
+
 test("preserves keyboard and mouse ordering after reload", async ({ page }) => {
   await createCard(page, "Second task", "", "todo");
   await createCard(page, "Third task", "", "todo");

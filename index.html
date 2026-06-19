@@ -49,6 +49,23 @@
       </div>
     </header>
 
+    <section class="board-toolbar" aria-label="Board search">
+      <label class="search-field" for="board-search">Search cards</label>
+      <div class="search-field__controls">
+        <input
+          id="board-search"
+          class="search-field__input"
+          type="search"
+          name="search"
+          placeholder="Search titles or descriptions"
+          autocomplete="off"
+        />
+        <button id="clear-search" class="button button--secondary" type="button">
+          Clear search
+        </button>
+      </div>
+    </section>
+
     <main>
       <p id="board-status" class="status" role="status" aria-live="polite">
         Loading board…

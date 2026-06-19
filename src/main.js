@@ -7,6 +7,8 @@ import { createBoardController } from "./services/board-controller.js";
 
 const boardElement = document.querySelector("#board");
 const statusElement = document.querySelector("#board-status");
+const searchInput = document.querySelector("#board-search");
+const clearSearchButton = document.querySelector("#clear-search");
 const importButton = document.querySelector("#import-board");
 const exportButton = document.querySelector("#export-board");
 const undoButton = document.querySelector("#undo-board");
@@ -19,6 +21,8 @@ const backupDialogElement = document.querySelector("#board-backup-dialog");
 if (
   !boardElement ||
   !statusElement ||
+  !searchInput ||
+  !clearSearchButton ||
   !importButton ||
   !exportButton ||
   !undoButton ||
@@ -34,6 +38,8 @@ if (
 const controller = createBoardController({
   boardElement,
   statusElement,
+  searchInput,
+  clearSearchButton,
   importButton,
   exportButton,
   undoButton,

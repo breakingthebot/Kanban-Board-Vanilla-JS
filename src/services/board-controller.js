@@ -16,6 +16,7 @@ import {
 } from "../models/board-state.js";
 import { createBoardHistory } from "./board-history.js";
 import { deserializeBoardState, serializeBoardState } from "./board-backup.js";
+import { filterCardsByQuery } from "./board-search.js";
 import { clearBoard, loadBoard, saveBoard } from "./board-storage.js";
 import { createCardDragManager } from "./card-drag.js";
 
@@ -24,6 +25,8 @@ import { createCardDragManager } from "./card-drag.js";
  * @param {object} dependencies Controller dependencies.
  * @param {HTMLElement} dependencies.boardElement Board container.
  * @param {HTMLElement} dependencies.statusElement Live status region.
+ * @param {HTMLInputElement} dependencies.searchInput Search field.
+ * @param {HTMLButtonElement} dependencies.clearSearchButton Search reset control.
  * @param {HTMLButtonElement} dependencies.importButton Import control.
  * @param {HTMLButtonElement} dependencies.exportButton Export control.
  * @param {HTMLButtonElement} dependencies.undoButton Undo control.
@@ -38,6 +41,8 @@ import { createCardDragManager } from "./card-drag.js";
 export function createBoardController({
   boardElement,
   statusElement,
+  searchInput,
+  clearSearchButton,
   importButton,
   exportButton,
   undoButton,
@@ -49,6 +54,7 @@ export function createBoardController({
   storage,
 }) {
   let state = createInitialState();
+  let searchQuery = "";
   const history = createBoardHistory();
   const cardDialog = createCardDialog({
     dialogElement,
@@ -88,6 +94,8 @@ export function createBoardController({
     exportButton.addEventListener("click", exportBackup);
     undoButton.addEventListener("click", undoLastChange);
     redoButton.addEventListener("click", redoLastChange);
+    searchInput.addEventListener("input", handleSearchInput);
+    clearSearchButton.addEventListener("click", clearSearch);
     document.addEventListener("keydown", handleKeyboardShortcut);
     dragManager.initialize();
     updateHistoryControls();
@@ -96,8 +104,10 @@ export function createBoardController({
   /** Rebuilds board columns from the current state. */
   function render() {
     boardElement.replaceChildren();
+    const matchingCards = filterCardsByQuery(state.cards, searchQuery);
+    const isFiltering = searchQuery.trim().length > 0;
     COLUMNS.forEach((column, index) => {
-      const cards = state.cards.filter((card) => card.columnId === column.id);
+      const cards = matchingCards.filter((card) => card.columnId === column.id);
       boardElement.append(
         createColumnElement(
           column,
@@ -107,6 +117,7 @@ export function createBoardController({
           moveByDirection,
           reorderByDirection,
           openCardEditor,
+          isFiltering ? "No matching cards" : undefined,
         ),
       );
     });
@@ -276,6 +287,20 @@ export function createBoardController({
     render();
     persistState("Board change redone.");
     updateHistoryControls();
+  }
+
+  /** Updates the board view to match the active search text. */
+  function handleSearchInput() {
+    searchQuery = searchInput.value;
+    render();
+  }
+
+  /** Clears the search input and restores the full board. */
+  function clearSearch() {
+    searchQuery = "";
+    searchInput.value = "";
+    render();
+    searchInput.focus();
   }
 
   /**
