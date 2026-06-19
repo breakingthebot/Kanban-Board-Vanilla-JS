@@ -1,12 +1,12 @@
 {
   "name": "kanban-board-vanilla-js",
-  "version": "1.6.0",
+  "version": "1.7.0",
   "description": "A dependency-free Kanban board with persistent drag-and-drop cards.",
   "private": true,
   "type": "module",
   "scripts": {
     "start": "node scripts/dev-server.js",
-    "test": "node --test tests/models/board-state.test.js tests/services/board-storage.test.js tests/services/board-backup.test.js",
+    "test": "node --test tests/models/board-state.test.js tests/services/board-storage.test.js tests/services/board-backup.test.js tests/services/board-history.test.js",
     "test:e2e": "playwright test",
     "test:e2e:install": "playwright install chromium",
     "check": "node scripts/check-syntax.js && npm test"

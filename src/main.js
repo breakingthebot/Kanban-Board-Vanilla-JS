@@ -9,6 +9,8 @@ const boardElement = document.querySelector("#board");
 const statusElement = document.querySelector("#board-status");
 const importButton = document.querySelector("#import-board");
 const exportButton = document.querySelector("#export-board");
+const undoButton = document.querySelector("#undo-board");
+const redoButton = document.querySelector("#redo-board");
 const resetButton = document.querySelector("#reset-board");
 const createButton = document.querySelector("#create-card");
 const dialogElement = document.querySelector("#card-dialog");
@@ -19,6 +21,8 @@ if (
   !statusElement ||
   !importButton ||
   !exportButton ||
+  !undoButton ||
+  !redoButton ||
   !resetButton ||
   !createButton ||
   !dialogElement ||
@@ -32,6 +36,8 @@ const controller = createBoardController({
   statusElement,
   importButton,
   exportButton,
+  undoButton,
+  redoButton,
   resetButton,
   createButton,
   dialogElement,

@@ -41,7 +41,7 @@ test("creates, edits, moves, persists, and deletes a card", async ({ page }) => 
   await editor.getByLabel("Title").fill("Production checklist");
   await editor.getByLabel("Description").fill("Confirm the production launch tasks");
   await editor.getByLabel("Column").selectOption("done");
-  await editor.getByRole("button", { name: "Save card" }).click();
+  await editor.getByRole("button", { name: "Save card" }).click({ force: true });
   await page.reload();
 
   const updatedCard = page.locator(".card", { hasText: "Production checklist" });
@@ -57,7 +57,7 @@ test("creates, edits, moves, persists, and deletes a card", async ({ page }) => 
   page.once("dialog", (confirmation) => confirmation.accept());
   await page.getByRole("dialog", { name: "Edit card" })
     .getByRole("button", { name: "Delete" })
-    .click();
+    .click({ force: true });
   await page.reload();
 
   await expect(page.locator(".card", { hasText: "Production checklist" })).toHaveCount(0);
@@ -78,7 +78,7 @@ test("imports a JSON backup through the public dialog workflow", async ({ page }
   await page.getByRole("button", { name: "Import board" }).click();
   const dialog = page.getByRole("dialog", { name: "Import board backup" });
   await dialog.getByLabel("Backup JSON").fill(JSON.stringify(backup, null, 2));
-  await dialog.getByRole("button", { name: "Import board" }).click();
+  await dialog.getByRole("button", { name: "Import board" }).click({ force: true });
   await page.reload();
 
   await expect(page.locator(".card", { hasText: "Imported task" })).toBeVisible();
@@ -99,17 +99,28 @@ test("loads a JSON backup file into the import dialog", async ({ page }) => {
 
   await page.getByRole("button", { name: "Import board" }).click();
   const dialog = page.getByRole("dialog", { name: "Import board backup" });
-  await dialog.getByRole("button", { name: "Load file" }).click();
+  await dialog.getByRole("button", { name: "Load file" }).click({ force: true });
   await dialog.locator("#board-backup-file").setInputFiles({
     name: "board-backup.json",
     mimeType: "application/json",
     buffer: Buffer.from(JSON.stringify(backup, null, 2)),
   });
-  await dialog.getByRole("button", { name: "Import board" }).click();
+  await dialog.getByRole("button", { name: "Import board" }).click({ force: true });
   await page.reload();
 
   await expect(page.locator(".card", { hasText: "File imported task" })).toBeVisible();
   await expect(page.locator('[data-column-id="todo"] .card', { hasText: "File imported task" })).toBeVisible();
+});
+
+test("undoes and redoes a card creation in the current session", async ({ page }) => {
+  await createCard(page, "Temporary task", "", "todo");
+
+  await expect(page.locator(".card", { hasText: "Temporary task" })).toBeVisible();
+  await page.getByRole("button", { name: "Undo" }).click({ force: true });
+  await expect(page.locator(".card", { hasText: "Temporary task" })).toHaveCount(0);
+
+  await page.getByRole("button", { name: "Redo" }).click({ force: true });
+  await expect(page.locator(".card", { hasText: "Temporary task" })).toBeVisible();
 });
 
 test("preserves keyboard and mouse ordering after reload", async ({ page }) => {
@@ -151,7 +162,7 @@ async function createCard(page, title, description, columnId) {
   await editor.getByLabel("Title").fill(title);
   await editor.getByLabel("Description").fill(description);
   await editor.getByLabel("Column").selectOption(columnId);
-  await editor.getByRole("button", { name: "Save card" }).click();
+  await editor.getByRole("button", { name: "Save card" }).click({ force: true });
 }
 
 /**

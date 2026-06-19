@@ -13,6 +13,8 @@ All notable changes to this project are documented here.
 
 ### Added
 
+- Session-based undo and redo controls for recent board changes.
+- Board history service and tests for recording, undoing, and redoing state snapshots.
 - File-based board backup import from the existing import dialog.
 - Board backup import and export controls with JSON validation.
 - Backup service and tests for serializing and restoring board state.
@@ -21,9 +23,16 @@ All notable changes to this project are documented here.
 
 ### Changed
 
-- Package version bumped to 1.6.0 for the file-import release.
+- Package version bumped to 1.7.0 for the undo/redo release.
 - README now documents the branch-based development workflow.
 - Browser tests now scope column assertions to an exact `data-column-id` target.
+
+## [1.7.0] - 2026-06-18
+
+### Added
+
+- Undo and redo buttons for session-only board history.
+- Browser coverage for undoing and redoing a card change.
 
 ## [1.6.0] - 2026-06-18
 

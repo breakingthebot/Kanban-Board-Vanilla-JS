@@ -14,6 +14,7 @@ import {
   placeCard,
   updateCard,
 } from "../models/board-state.js";
+import { createBoardHistory } from "./board-history.js";
 import { deserializeBoardState, serializeBoardState } from "./board-backup.js";
 import { clearBoard, loadBoard, saveBoard } from "./board-storage.js";
 import { createCardDragManager } from "./card-drag.js";
@@ -25,6 +26,8 @@ import { createCardDragManager } from "./card-drag.js";
  * @param {HTMLElement} dependencies.statusElement Live status region.
  * @param {HTMLButtonElement} dependencies.importButton Import control.
  * @param {HTMLButtonElement} dependencies.exportButton Export control.
+ * @param {HTMLButtonElement} dependencies.undoButton Undo control.
+ * @param {HTMLButtonElement} dependencies.redoButton Redo control.
  * @param {HTMLButtonElement} dependencies.resetButton Reset control.
  * @param {HTMLButtonElement} dependencies.createButton Create-card control.
  * @param {HTMLDialogElement} dependencies.dialogElement Card editor dialog.
@@ -37,6 +40,8 @@ export function createBoardController({
   statusElement,
   importButton,
   exportButton,
+  undoButton,
+  redoButton,
   resetButton,
   createButton,
   dialogElement,
@@ -44,6 +49,7 @@ export function createBoardController({
   storage,
 }) {
   let state = createInitialState();
+  const history = createBoardHistory();
   const cardDialog = createCardDialog({
     dialogElement,
     onSave: saveCard,
@@ -80,7 +86,10 @@ export function createBoardController({
     createButton.addEventListener("click", cardDialog.openCreate);
     importButton.addEventListener("click", openImportDialog);
     exportButton.addEventListener("click", exportBackup);
+    undoButton.addEventListener("click", undoLastChange);
+    redoButton.addEventListener("click", redoLastChange);
     dragManager.initialize();
+    updateHistoryControls();
   }
 
   /** Rebuilds board columns from the current state. */
@@ -115,11 +124,10 @@ export function createBoardController({
    * @returns {void}
    */
   function saveCard(cardId, input) {
-    state = cardId
+    const nextState = cardId
       ? updateCard(state, cardId, input)
       : addCard(state, crypto.randomUUID(), input);
-    render();
-    persistState(cardId ? "Card updated." : "Card created.");
+    commitState(nextState, cardId ? "Card updated." : "Card created.");
   }
 
   /**
@@ -128,9 +136,7 @@ export function createBoardController({
    * @returns {void}
    */
   function removeCard(cardId) {
-    state = deleteCard(state, cardId);
-    render();
-    persistState("Card deleted.");
+    commitState(deleteCard(state, cardId), "Card deleted.");
   }
 
   /** Opens the backup import dialog with the current state prefilled. */
@@ -144,9 +150,7 @@ export function createBoardController({
    * @returns {void}
    */
   function importBackup(serializedState) {
-    state = deserializeBoardState(serializedState);
-    render();
-    persistState("Board imported.");
+    commitState(deserializeBoardState(serializedState), "Board imported.");
   }
 
   /** Downloads the current board state as a JSON backup file. */
@@ -214,8 +218,10 @@ export function createBoardController({
    */
   function updateCardPosition(cardId, destinationColumnId, beforeCardId) {
     try {
-      state = placeCard(state, cardId, destinationColumnId, beforeCardId);
-      render();
+      commitState(
+        placeCard(state, cardId, destinationColumnId, beforeCardId),
+        `Card moved to ${getColumnTitle(destinationColumnId)}.`,
+      );
     } catch (error) {
       console.error("Unable to move card.", {
         cardId,
@@ -223,28 +229,12 @@ export function createBoardController({
         error: error.message,
       });
       setStatus("The card could not be moved. Please try again.", true);
-      return;
-    }
-
-    const destination = COLUMNS.find((column) => column.id === destinationColumnId);
-    try {
-      saveBoard(storage, state);
-      setStatus(`Card moved to ${destination.title}.`);
-    } catch (error) {
-      console.error("Unable to persist moved card.", {
-        cardId,
-        destinationColumnId,
-        error: error.message,
-      });
-      setStatus(
-        `Card moved to ${destination.title}, but storage is unavailable.`,
-        true,
-      );
     }
   }
 
   /** Restores configured sample cards and removes persisted changes. */
   function reset() {
+    history.record(state);
     state = createInitialState();
     render();
 
@@ -255,6 +245,36 @@ export function createBoardController({
       console.error("Unable to reset board.", { error: error.message });
       setStatus("Board reset for this session, but storage is unavailable.", true);
     }
+
+    updateHistoryControls();
+  }
+
+  /** Restores the most recent board state change. */
+  function undoLastChange() {
+    const result = history.undo(state);
+    if (!result.changed) {
+      setStatus("Nothing to undo.");
+      return;
+    }
+
+    state = result.state;
+    render();
+    persistState("Board change undone.");
+    updateHistoryControls();
+  }
+
+  /** Reapplies the most recently undone board state change. */
+  function redoLastChange() {
+    const result = history.redo(state);
+    if (!result.changed) {
+      setStatus("Nothing to redo.");
+      return;
+    }
+
+    state = result.state;
+    render();
+    persistState("Board change redone.");
+    updateHistoryControls();
   }
 
   /**
@@ -273,6 +293,26 @@ export function createBoardController({
   }
 
   /**
+   * Applies a state transition, stores the previous snapshot, and refreshes the UI.
+   * @param {{cards: Array<object>}} nextState Next board state.
+   * @param {string} successMessage Message shown after successful persistence.
+   * @returns {void}
+   */
+  function commitState(nextState, successMessage) {
+    history.record(state);
+    state = nextState;
+    render();
+    persistState(successMessage);
+    updateHistoryControls();
+  }
+
+  /** Updates undo and redo controls to match the current history stack. */
+  function updateHistoryControls() {
+    undoButton.disabled = !history.canUndo();
+    redoButton.disabled = !history.canRedo();
+  }
+
+  /**
    * Updates the live status region with normal or error feedback.
    * @param {string} message User-facing status message.
    * @param {boolean} [isError=false] Whether the message represents an error.
@@ -280,6 +320,15 @@ export function createBoardController({
   function setStatus(message, isError = false) {
     statusElement.textContent = message;
     statusElement.classList.toggle("status--error", isError);
+  }
+
+  /**
+   * Returns a readable column title for status messages.
+   * @param {string} columnId Target column identifier.
+   * @returns {string} Column title or identifier fallback.
+   */
+  function getColumnTitle(columnId) {
+    return COLUMNS.find((column) => column.id === columnId)?.title ?? columnId;
   }
 
   return { initialize };
