@@ -5,6 +5,7 @@
 
 import { createColumnElement } from "../components/column.js";
 import { createCardDialog } from "../components/card-dialog.js";
+import { createBoardBackupDialog } from "../components/board-backup-dialog.js";
 import { COLUMNS } from "../config/board-config.js";
 import {
   addCard,
@@ -13,6 +14,7 @@ import {
   placeCard,
   updateCard,
 } from "../models/board-state.js";
+import { deserializeBoardState, serializeBoardState } from "./board-backup.js";
 import { clearBoard, loadBoard, saveBoard } from "./board-storage.js";
 import { createCardDragManager } from "./card-drag.js";
 
@@ -21,18 +23,24 @@ import { createCardDragManager } from "./card-drag.js";
  * @param {object} dependencies Controller dependencies.
  * @param {HTMLElement} dependencies.boardElement Board container.
  * @param {HTMLElement} dependencies.statusElement Live status region.
+ * @param {HTMLButtonElement} dependencies.importButton Import control.
+ * @param {HTMLButtonElement} dependencies.exportButton Export control.
  * @param {HTMLButtonElement} dependencies.resetButton Reset control.
  * @param {HTMLButtonElement} dependencies.createButton Create-card control.
  * @param {HTMLDialogElement} dependencies.dialogElement Card editor dialog.
+ * @param {HTMLDialogElement} dependencies.backupDialogElement Board backup dialog.
  * @param {Storage} dependencies.storage Browser storage implementation.
  * @returns {{initialize: () => void}} Public controller API.
  */
 export function createBoardController({
   boardElement,
   statusElement,
+  importButton,
+  exportButton,
   resetButton,
   createButton,
   dialogElement,
+  backupDialogElement,
   storage,
 }) {
   let state = createInitialState();
@@ -41,6 +49,10 @@ export function createBoardController({
     onSave: saveCard,
     onDelete: removeCard,
     confirmDelete: window.confirm.bind(window),
+  });
+  const backupDialog = createBoardBackupDialog({
+    dialogElement: backupDialogElement,
+    onImport: importBackup,
   });
   const dragManager = createCardDragManager({
     boardElement,
@@ -66,6 +78,8 @@ export function createBoardController({
 
     resetButton.addEventListener("click", reset);
     createButton.addEventListener("click", cardDialog.openCreate);
+    importButton.addEventListener("click", openImportDialog);
+    exportButton.addEventListener("click", exportBackup);
     dragManager.initialize();
   }
 
@@ -117,6 +131,40 @@ export function createBoardController({
     state = deleteCard(state, cardId);
     render();
     persistState("Card deleted.");
+  }
+
+  /** Opens the backup import dialog with the current state prefilled. */
+  function openImportDialog() {
+    backupDialog.open(serializeBoardState(state));
+  }
+
+  /**
+   * Replaces the current state with a validated imported backup.
+   * @param {string} serializedState Raw JSON backup text.
+   * @returns {void}
+   */
+  function importBackup(serializedState) {
+    state = deserializeBoardState(serializedState);
+    render();
+    persistState("Board imported.");
+  }
+
+  /** Downloads the current board state as a JSON backup file. */
+  function exportBackup() {
+    try {
+      const backup = serializeBoardState(state);
+      const blob = new Blob([backup], { type: "application/json" });
+      const downloadUrl = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = downloadUrl;
+      link.download = "kanban-board-backup.json";
+      link.click();
+      URL.revokeObjectURL(downloadUrl);
+      setStatus("Board backup downloaded.");
+    } catch (error) {
+      console.error("Unable to export board backup.", { error: error.message });
+      setStatus("The board backup could not be exported.", true);
+    }
   }
 
   /**

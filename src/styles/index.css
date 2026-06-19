@@ -128,6 +128,10 @@ h1 {
   color: #ffffff;
 }
 
+.button--secondary {
+  background: #f8fafc;
+}
+
 .button--danger {
   border-color: #fecdca;
   color: var(--danger);
@@ -328,6 +332,13 @@ h1 {
   margin-bottom: 0;
   color: var(--danger);
   font-size: 0.875rem;
+}
+
+.backup-help {
+  margin-bottom: 0;
+  color: var(--muted);
+  font-size: 0.875rem;
+  line-height: 1.5;
 }
 
 .icon-button:hover:not(:disabled) {

@@ -52,7 +52,8 @@ test("creates, edits, moves, persists, and deletes a card", async ({ page }) => 
     }),
   ).toBeVisible();
 
-  await updatedCard.getByRole("button", { name: "Edit" }).click();
+  await updatedCard.scrollIntoViewIfNeeded();
+  await updatedCard.getByRole("button", { name: "Edit" }).click({ force: true });
   page.once("dialog", (confirmation) => confirmation.accept());
   await page.getByRole("dialog", { name: "Edit card" })
     .getByRole("button", { name: "Delete" })
@@ -60,6 +61,28 @@ test("creates, edits, moves, persists, and deletes a card", async ({ page }) => 
   await page.reload();
 
   await expect(page.locator(".card", { hasText: "Production checklist" })).toHaveCount(0);
+});
+
+test("imports a JSON backup through the public dialog workflow", async ({ page }) => {
+  const backup = {
+    cards: [
+      {
+        id: "imported-card",
+        title: "Imported task",
+        description: "Restored from backup",
+        columnId: "done",
+      },
+    ],
+  };
+
+  await page.getByRole("button", { name: "Import board" }).click();
+  const dialog = page.getByRole("dialog", { name: "Import board backup" });
+  await dialog.getByLabel("Backup JSON").fill(JSON.stringify(backup, null, 2));
+  await dialog.getByRole("button", { name: "Import board" }).click();
+  await page.reload();
+
+  await expect(page.locator(".card", { hasText: "Imported task" })).toBeVisible();
+  await expect(page.locator('[data-column-id="done"] .card', { hasText: "Imported task" })).toBeVisible();
 });
 
 test("preserves keyboard and mouse ordering after reload", async ({ page }) => {

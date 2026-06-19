@@ -13,13 +13,23 @@ All notable changes to this project are documented here.
 
 ### Added
 
+- Board backup import and export controls with JSON validation.
+- Backup service and tests for serializing and restoring board state.
 - Contribution guide covering setup, checks, pull requests, deployment, and releases.
 - Pull request template requiring validation and documentation evidence.
 
 ### Changed
 
+- Package version bumped to 1.5.0 for the backup release.
 - README now documents the branch-based development workflow.
 - Browser tests now scope column assertions to an exact `data-column-id` target.
+
+## [1.5.0] - 2026-06-18
+
+### Added
+
+- JSON board backup import/export in the browser.
+- Browser coverage for importing a backup through the public dialog workflow.
 
 ## [1.4.0] - 2026-06-18
 
