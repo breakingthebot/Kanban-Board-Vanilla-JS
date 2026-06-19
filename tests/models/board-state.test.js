@@ -21,8 +21,10 @@ test("createInitialState returns independent card copies", () => {
   const secondState = createInitialState();
 
   firstState.cards[0].title = "Changed";
+  firstState.cards[0].labels.push("new");
 
   assert.notEqual(secondState.cards[0].title, "Changed");
+  assert.equal(secondState.cards[0].labels.includes("new"), false);
 });
 
 test("isValidState accepts configured initial state", () => {
@@ -54,9 +56,15 @@ test("isValidState rejects persisted fields beyond configured limits", () => {
   oversizedTitle.cards[0].title = "x".repeat(81);
   const oversizedDescription = createInitialState();
   oversizedDescription.cards[0].description = "x".repeat(241);
+  const oversizedLabels = createInitialState();
+  oversizedLabels.cards[0].labels = ["x".repeat(25)];
+  const tooManyLabels = createInitialState();
+  tooManyLabels.cards[0].labels = ["a", "b", "c", "d", "e"];
 
   assert.equal(isValidState(oversizedTitle), false);
   assert.equal(isValidState(oversizedDescription), false);
+  assert.equal(isValidState(oversizedLabels), false);
+  assert.equal(isValidState(tooManyLabels), false);
 });
 
 test("moveCard moves a card without mutating the original state", () => {
@@ -144,6 +152,7 @@ test("addCard trims valid input without mutating existing state", () => {
   const result = addCard(state, "card-new", {
     title: "  New task  ",
     description: "  Details  ",
+    labels: ["  launch  ", "release", "launch"],
     columnId: "todo",
   });
 
@@ -152,6 +161,7 @@ test("addCard trims valid input without mutating existing state", () => {
     id: "card-new",
     title: "New task",
     description: "Details",
+    labels: ["launch", "release"],
     columnId: "todo",
   });
 });
@@ -179,6 +189,14 @@ test("addCard rejects invalid fields and duplicate IDs", () => {
       }),
     /description must be 240 characters or fewer/,
   );
+  assert.throws(
+    () =>
+      addCard(state, "card-new", {
+        ...state.cards[0],
+        labels: ["x".repeat(25)],
+      }),
+    /labels must be 24 characters or fewer/,
+  );
 });
 
 test("updateCard changes editable fields and preserves the card ID", () => {
@@ -187,6 +205,7 @@ test("updateCard changes editable fields and preserves the card ID", () => {
   const result = updateCard(state, cardId, {
     title: "Updated task",
     description: "Updated details",
+    labels: ["planning", "launch"],
     columnId: "done",
   });
 
@@ -194,6 +213,7 @@ test("updateCard changes editable fields and preserves the card ID", () => {
     id: cardId,
     title: "Updated task",
     description: "Updated details",
+    labels: ["planning", "launch"],
     columnId: "done",
   });
   assert.notDeepEqual(state.cards[0], result.cards[0]);

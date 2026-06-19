@@ -6,6 +6,8 @@
 export const STORAGE_KEY = "kanban-board-state-v1";
 export const CARD_TITLE_MAX_LENGTH = 80;
 export const CARD_DESCRIPTION_MAX_LENGTH = 240;
+export const CARD_LABEL_MAX_LENGTH = 24;
+export const CARD_LABEL_MAX_COUNT = 4;
 
 export const COLUMNS = Object.freeze([
   Object.freeze({ id: "todo", title: "To do" }),
@@ -18,18 +20,21 @@ export const INITIAL_CARDS = Object.freeze([
     id: "card-research",
     title: "Review project requirements",
     description: "Confirm the scope and identify the first deliverable.",
+    labels: Object.freeze(["planning", "scope"]),
     columnId: "todo",
   }),
   Object.freeze({
     id: "card-layout",
     title: "Build the board layout",
     description: "Create responsive columns and accessible card controls.",
+    labels: Object.freeze(["ui", "responsive"]),
     columnId: "doing",
   }),
   Object.freeze({
     id: "card-repository",
     title: "Create the repository",
     description: "Set up source control and project documentation.",
+    labels: Object.freeze(["setup", "documentation"]),
     columnId: "done",
   }),
 ]);

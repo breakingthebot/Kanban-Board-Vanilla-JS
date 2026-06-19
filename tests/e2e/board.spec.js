@@ -30,22 +30,31 @@ test("renders a usable board without serious accessibility violations", async ({
 });
 
 test("creates, edits, moves, persists, and deletes a card", async ({ page }) => {
-  await createCard(page, "Release checklist", "Confirm launch tasks", "todo");
+  await createCard(
+    page,
+    "Release checklist",
+    "Confirm launch tasks",
+    "todo",
+    "launch, release",
+  );
   await page.reload();
 
   const createdCard = page.locator(".card", { hasText: "Release checklist" });
   await expect(createdCard).toBeVisible();
+  await expect(createdCard.locator(".card__label")).toHaveText(["launch", "release"]);
   await createdCard.getByRole("button", { name: "Edit" }).click();
 
   const editor = page.getByRole("dialog", { name: "Edit card" });
   await editor.getByLabel("Title").fill("Production checklist");
   await editor.getByLabel("Description").fill("Confirm the production launch tasks");
+  await editor.getByLabel("Labels").fill("production, launch");
   await editor.getByLabel("Column").selectOption("done");
   await editor.getByRole("button", { name: "Save card" }).click({ force: true });
   await page.reload();
 
   const updatedCard = page.locator(".card", { hasText: "Production checklist" });
   await expect(updatedCard).toBeVisible();
+  await expect(updatedCard.locator(".card__label")).toHaveText(["production", "launch"]);
   await expect(
     page.locator('[data-column-id="done"] .card', {
       hasText: "Production checklist",
@@ -146,12 +155,12 @@ test("filters cards with the search field and clears the filter", async ({ page 
   const search = page.getByLabel("Search cards");
   const summary = page.getByRole("status", { name: "Board search" });
 
-  await search.fill("responsive");
+  await search.fill("planning");
   await expect(page.locator(".card")).toHaveCount(1);
-  await expect(page.locator(".card", { hasText: "Build the board layout" })).toBeVisible();
-  await expect(summary).toContainText('1 of 3 cards match "responsive".');
-  await expect(summary).toContainText("To do: 0");
-  await expect(summary).toContainText("In progress: 1");
+  await expect(page.locator(".card", { hasText: "Review project requirements" })).toBeVisible();
+  await expect(summary).toContainText('1 of 3 cards match "planning".');
+  await expect(summary).toContainText("To do: 1");
+  await expect(summary).toContainText("In progress: 0");
   await expect(summary).toContainText("Done: 0");
 
   await search.fill("missing");
@@ -197,11 +206,14 @@ test("preserves keyboard and mouse ordering after reload", async ({ page }) => {
  * @param {string} columnId Destination column identifier.
  * @returns {Promise<void>}
  */
-async function createCard(page, title, description, columnId) {
+async function createCard(page, title, description, columnId, labels = "") {
   await page.getByRole("button", { name: "Create card" }).click();
   const editor = page.getByRole("dialog", { name: "Create card" });
   await editor.getByLabel("Title").fill(title);
   await editor.getByLabel("Description").fill(description);
+  if (labels) {
+    await editor.getByLabel("Labels").fill(labels);
+  }
   await editor.getByLabel("Column").selectOption(columnId);
   await editor.getByRole("button", { name: "Save card" }).click({ force: true });
 }

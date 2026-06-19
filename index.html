@@ -57,7 +57,7 @@
           class="search-field__input"
           type="search"
           name="search"
-          placeholder="Search titles or descriptions"
+          placeholder="Search titles, descriptions, or labels"
           autocomplete="off"
         />
         <button id="clear-search" class="button button--secondary" type="button">
@@ -94,6 +94,15 @@
 
         <label for="card-description">Description</label>
         <textarea id="card-description" name="description" rows="4"></textarea>
+
+        <label for="card-labels">Labels</label>
+        <input
+          id="card-labels"
+          name="labels"
+          type="text"
+          placeholder="planning, scope, ui"
+        />
+        <p class="field-help">Separate labels with commas. Search matches labels too.</p>
 
         <label for="card-column">Column</label>
         <select id="card-column" name="column"></select>

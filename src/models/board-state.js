@@ -5,17 +5,20 @@
 
 import {
   CARD_DESCRIPTION_MAX_LENGTH,
+  CARD_LABEL_MAX_COUNT,
+  CARD_LABEL_MAX_LENGTH,
   CARD_TITLE_MAX_LENGTH,
   COLUMNS,
   INITIAL_CARDS,
 } from "../config/board-config.js";
+import { normalizeLabels } from "../services/card-labels.js";
 
 /**
  * Creates a fresh board state from the configured sample cards.
  * @returns {{cards: Array<object>}} A mutable board state copy.
  */
 export function createInitialState() {
-  return { cards: INITIAL_CARDS.map((card) => ({ ...card })) };
+  return { cards: INITIAL_CARDS.map((card) => cloneCard(card)) };
 }
 
 /**
@@ -42,6 +45,15 @@ export function isValidState(state) {
       card.title.length <= CARD_TITLE_MAX_LENGTH &&
       typeof card.description === "string" &&
       card.description.length <= CARD_DESCRIPTION_MAX_LENGTH &&
+      (card.labels === undefined ||
+        (Array.isArray(card.labels) &&
+          card.labels.length <= CARD_LABEL_MAX_COUNT &&
+          card.labels.every(
+            (label) =>
+              typeof label === "string" &&
+              label.trim().length > 0 &&
+              label.trim().length <= CARD_LABEL_MAX_LENGTH,
+          ))) &&
       columnIds.has(card.columnId) &&
       !cardIds.has(card.id);
 
@@ -86,12 +98,12 @@ export function placeCard(state, cardId, destinationColumnId, beforeCardId) {
   }
 
   if (beforeCardId === cardId) {
-    return { cards: state.cards.map((card) => ({ ...card })) };
+    return { cards: state.cards.map((card) => cloneCard(card)) };
   }
 
   const remainingCards = state.cards
     .filter((card) => card.id !== cardId)
-    .map((card) => ({ ...card }));
+    .map((card) => cloneCard(card));
   let insertionIndex = remainingCards.length;
 
   if (beforeCardId !== null) {
@@ -136,7 +148,7 @@ export function addCard(state, cardId, input) {
   }
 
   return {
-    cards: [...state.cards.map((card) => ({ ...card })), normalizeCard(cardId, input)],
+    cards: [...state.cards.map((card) => cloneCard(card)), normalizeCard(cardId, input)],
   };
 }
 
@@ -156,7 +168,7 @@ export function updateCard(state, cardId, input) {
   const updatedCard = normalizeCard(cardId, input);
   return {
     cards: state.cards.map((card) =>
-      card.id === cardId ? updatedCard : { ...card },
+      card.id === cardId ? updatedCard : cloneCard(card),
     ),
   };
 }
@@ -176,7 +188,7 @@ export function deleteCard(state, cardId) {
   return {
     cards: state.cards
       .filter((card) => card.id !== cardId)
-      .map((card) => ({ ...card })),
+      .map((card) => cloneCard(card)),
   };
 }
 
@@ -192,6 +204,7 @@ function normalizeCard(cardId, input) {
   const description =
     typeof input?.description === "string" ? input.description.trim() : "";
   const columnId = input?.columnId;
+  const labels = normalizeLabels(input?.labels);
 
   if (title.length === 0 || title.length > CARD_TITLE_MAX_LENGTH) {
     throw new Error(
@@ -209,5 +222,17 @@ function normalizeCard(cardId, input) {
     throw new Error(`Cannot save card: unknown column "${columnId}".`);
   }
 
-  return { id: cardId, title, description, columnId };
+  return { id: cardId, title, description, labels, columnId };
+}
+
+/**
+ * Clones a persisted card without sharing nested arrays.
+ * @param {object} card Card record to clone.
+ * @returns {object} Deep enough copy for board state updates.
+ */
+function cloneCard(card) {
+  return {
+    ...card,
+    labels: Array.isArray(card.labels) ? [...card.labels] : [],
+  };
 }

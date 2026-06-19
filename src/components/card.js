@@ -42,6 +42,8 @@ export function createCardElement(
   const description = document.createElement("p");
   description.textContent = card.description;
 
+  const labels = createLabels(card.labels);
+
   const controls = document.createElement("div");
   controls.className = "card__controls";
   controls.setAttribute("aria-label", `Move ${card.title}`);
@@ -75,8 +77,37 @@ export function createCardElement(
     ),
   );
 
-  article.append(cardHeader, description, controls);
+  const content = [cardHeader, description];
+  if (labels) {
+    content.push(labels);
+  }
+  content.push(controls);
+  article.append(...content);
   return article;
+}
+
+/**
+ * Creates a label list for the card when labels are present.
+ * @param {Array<string>|undefined} cardLabels Stored labels.
+ * @returns {HTMLElement|null} Label container or null when empty.
+ */
+function createLabels(cardLabels) {
+  if (!Array.isArray(cardLabels) || cardLabels.length === 0) {
+    return null;
+  }
+
+  const labels = document.createElement("div");
+  labels.className = "card__labels";
+  labels.setAttribute("aria-label", "Card labels");
+
+  cardLabels.forEach((label) => {
+    const chip = document.createElement("span");
+    chip.className = "card__label";
+    chip.textContent = label;
+    labels.append(chip);
+  });
+
+  return labels;
 }
 
 /**

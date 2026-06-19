@@ -24,9 +24,12 @@ test("filterCardsByQuery matches titles and descriptions case-insensitively", ()
   const cards = createInitialState().cards;
   const titleMatches = filterCardsByQuery(cards, "repository");
   const descriptionMatches = filterCardsByQuery(cards, "responsive");
+  const labelMatches = filterCardsByQuery(cards, "planning");
 
   assert.equal(titleMatches.length, 1);
   assert.equal(titleMatches[0].title, "Create the repository");
   assert.equal(descriptionMatches.length, 1);
   assert.equal(descriptionMatches[0].title, "Build the board layout");
+  assert.equal(labelMatches.length, 1);
+  assert.equal(labelMatches[0].title, "Review project requirements");
 });

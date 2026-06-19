@@ -13,6 +13,7 @@ All notable changes to this project are documented here.
 
 ### Added
 
+- Card labels with persistence, display chips, and label-aware search.
 - Search summary counts now use a compact inline separator for easier reading.
 - Search summary with per-column match counts and empty-result feedback.
 - Search summary service and tests for visible match counting.
@@ -29,10 +30,18 @@ All notable changes to this project are documented here.
 
 ### Changed
 
+- Package version bumped to 1.11.0 for the card-labels release.
 - Package version bumped to 1.10.1 for the search-summary polish release.
 - Package version bumped to 1.10.0 for the search-summary release.
 - README now documents the branch-based development workflow.
 - Browser tests now scope column assertions to an exact `data-column-id` target.
+
+## [1.11.0] - 2026-06-18
+
+### Added
+
+- Card labels with persistence, label chips, and label-aware search.
+- Browser coverage for card labels and label search.
 
 ## [1.10.1] - 2026-06-18
 

@@ -27,6 +27,11 @@ export function filterCardsByQuery(cards, query) {
   return cards.filter((card) => {
     const title = card.title.toLowerCase();
     const description = card.description.toLowerCase();
-    return title.includes(normalizedQuery) || description.includes(normalizedQuery);
+    const labels = Array.isArray(card.labels) ? card.labels.join(" ").toLowerCase() : "";
+    return (
+      title.includes(normalizedQuery) ||
+      description.includes(normalizedQuery) ||
+      labels.includes(normalizedQuery)
+    );
   });
 }

@@ -8,6 +8,7 @@ import {
   CARD_TITLE_MAX_LENGTH,
   COLUMNS,
 } from "../config/board-config.js";
+import { formatLabelInput, parseLabelInput } from "../services/card-labels.js";
 
 /**
  * Creates a reusable card editor around the dialog markup.
@@ -28,6 +29,7 @@ export function createCardDialog({
   const heading = dialogElement.querySelector("#card-dialog-title");
   const titleInput = dialogElement.querySelector("#card-title");
   const descriptionInput = dialogElement.querySelector("#card-description");
+  const labelsInput = dialogElement.querySelector("#card-labels");
   const columnSelect = dialogElement.querySelector("#card-column");
   const errorElement = dialogElement.querySelector("#card-form-error");
   const deleteButton = dialogElement.querySelector("#delete-card");
@@ -37,6 +39,9 @@ export function createCardDialog({
   populateColumns(columnSelect);
   titleInput.maxLength = CARD_TITLE_MAX_LENGTH;
   descriptionInput.maxLength = CARD_DESCRIPTION_MAX_LENGTH;
+  if (labelsInput) {
+    labelsInput.maxLength = 128;
+  }
 
   form.addEventListener("submit", handleSubmit);
   cancelButton.addEventListener("click", close);
@@ -62,6 +67,9 @@ export function createCardDialog({
     heading.textContent = "Edit card";
     titleInput.value = card.title;
     descriptionInput.value = card.description;
+    if (labelsInput) {
+      labelsInput.value = formatLabelInput(card.labels);
+    }
     columnSelect.value = card.columnId;
     deleteButton.hidden = false;
     dialogElement.showModal();
@@ -82,6 +90,7 @@ export function createCardDialog({
       onSave(editingCardId, {
         title: titleInput.value,
         description: descriptionInput.value,
+        labels: parseLabelInput(labelsInput?.value ?? ""),
         columnId: columnSelect.value,
       });
       close();

@@ -101,6 +101,13 @@ button:focus-visible,
   color: var(--danger);
 }
 
+.field-help {
+  margin-bottom: 0;
+  color: var(--muted);
+  font-size: 0.8rem;
+  line-height: 1.4;
+}
+
 h1,
 h2,
 h3,
@@ -285,6 +292,23 @@ h1 {
   color: var(--muted);
   font-size: 0.875rem;
   line-height: 1.55;
+}
+
+.card__labels {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-bottom: 1rem;
+}
+
+.card__label {
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  background: var(--accent-soft);
+  color: #2846b8;
+  font-size: 0.75rem;
+  font-weight: 650;
+  line-height: 1.4;
 }
 
 .card__controls {
