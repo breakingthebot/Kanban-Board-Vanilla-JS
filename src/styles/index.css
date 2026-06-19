@@ -69,6 +69,12 @@ button:focus-visible,
   padding: 0 0.1rem;
 }
 
+.due-date-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
 .board-summary {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -225,6 +231,12 @@ h1 {
 
 .button--secondary {
   background: #f8fafc;
+}
+
+.button--filter[aria-pressed="true"] {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  color: #1f3bb3;
 }
 
 .button__icon {
@@ -564,6 +576,10 @@ h1 {
 
   .search-field__controls .button {
     width: 100%;
+  }
+
+  .due-date-filters .button {
+    flex: 1;
   }
 
   .board {

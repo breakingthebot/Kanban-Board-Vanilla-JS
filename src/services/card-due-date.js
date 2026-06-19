@@ -1,9 +1,9 @@
 // src/services/card-due-date.js
 // Normalizes, validates, formats, and compares board card due dates.
-// Connects to: config/board-config.js, models/board-state.js, components/card-dialog.js, and components/card.js.
+// Connects to: config/board-config.js, models/board-state.js, components/card-dialog.js, components/card.js, and board filtering.
 // Created: 2026-06-18
 
-import { CARD_DUE_DATE_MAX_LENGTH } from "../config/board-config.js";
+import { CARD_DUE_DATE_MAX_LENGTH, CARD_DUE_SOON_DAYS } from "../config/board-config.js";
 
 /**
  * Normalizes a due date input to a YYYY-MM-DD string.
@@ -74,4 +74,26 @@ export function isOverdue(dueDate, referenceDate = new Date()) {
   const today = new Date(referenceDate);
   today.setHours(23, 59, 59, 999);
   return due.getTime() < today.getTime();
+}
+
+/**
+ * Checks whether a due date falls within the upcoming window.
+ * @param {string|undefined} dueDate Due date string.
+ * @param {Date} [referenceDate=new Date()] Reference date for comparison.
+ * @returns {boolean} Whether the due date is due soon.
+ */
+export function isDueSoon(dueDate, referenceDate = new Date()) {
+  if (!dueDate || isOverdue(dueDate, referenceDate)) {
+    return false;
+  }
+
+  const [year, month, day] = dueDate.split("-").map((part) => Number.parseInt(part, 10));
+  const due = new Date(year, month - 1, day, 23, 59, 59, 999);
+  const today = new Date(referenceDate);
+  today.setHours(0, 0, 0, 0);
+  const soonLimit = new Date(today);
+  soonLimit.setDate(soonLimit.getDate() + CARD_DUE_SOON_DAYS);
+  soonLimit.setHours(23, 59, 59, 999);
+
+  return due.getTime() <= soonLimit.getTime();
 }

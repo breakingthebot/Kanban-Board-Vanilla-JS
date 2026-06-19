@@ -20,6 +20,7 @@ import { filterCardsByQuery } from "./board-search.js";
 import { summarizeBoardSearch } from "./board-search-summary.js";
 import { clearBoard, loadBoard, saveBoard } from "./board-storage.js";
 import { createCardDragManager } from "./card-drag.js";
+import { isDueSoon, isOverdue } from "./card-due-date.js";
 
 /**
  * Creates the board controller around explicit DOM and storage dependencies.
@@ -29,6 +30,9 @@ import { createCardDragManager } from "./card-drag.js";
  * @param {HTMLElement} dependencies.boardSummaryTotalElement Summary total counter.
  * @param {HTMLElement} dependencies.boardSummaryVisibleElement Summary visible counter.
  * @param {HTMLElement} dependencies.boardSummaryFilterElement Summary filter status.
+ * @param {HTMLButtonElement} dependencies.allDueFilterButton Due filter reset button.
+ * @param {HTMLButtonElement} dependencies.overdueFilterButton Overdue filter button.
+ * @param {HTMLButtonElement} dependencies.dueSoonFilterButton Due-soon filter button.
  * @param {HTMLInputElement} dependencies.searchInput Search field.
  * @param {HTMLButtonElement} dependencies.clearSearchButton Search reset control.
  * @param {HTMLElement} dependencies.searchSummaryElement Search summary region.
@@ -49,6 +53,9 @@ export function createBoardController({
   boardSummaryTotalElement,
   boardSummaryVisibleElement,
   boardSummaryFilterElement,
+  allDueFilterButton,
+  overdueFilterButton,
+  dueSoonFilterButton,
   searchInput,
   clearSearchButton,
   searchSummaryElement,
@@ -64,6 +71,7 @@ export function createBoardController({
 }) {
   let state = createInitialState();
   let searchQuery = "";
+  let dueDateFilter = "all";
   const history = createBoardHistory();
   const cardDialog = createCardDialog({
     dialogElement,
@@ -105,6 +113,9 @@ export function createBoardController({
     redoButton.addEventListener("click", redoLastChange);
     searchInput.addEventListener("input", handleSearchInput);
     clearSearchButton.addEventListener("click", clearSearch);
+    allDueFilterButton.addEventListener("click", () => setDueDateFilter("all"));
+    overdueFilterButton.addEventListener("click", () => setDueDateFilter("overdue"));
+    dueSoonFilterButton.addEventListener("click", () => setDueDateFilter("due-soon"));
     document.addEventListener("keydown", handleKeyboardShortcut);
     dragManager.initialize();
     updateHistoryControls();
@@ -115,10 +126,12 @@ export function createBoardController({
     boardElement.replaceChildren();
     const matchingCards = filterCardsByQuery(state.cards, searchQuery);
     const searchSummary = summarizeBoardSearch(state.cards, searchQuery);
-    renderBoardSummary(searchSummary, matchingCards.length);
+    const dueFilteredCards = filterCardsByDueDate(matchingCards, dueDateFilter);
+    renderBoardSummary(searchSummary, dueFilteredCards.length);
     renderSearchSummary(searchSummary);
+    updateDueFilterButtons();
     COLUMNS.forEach((column, index) => {
-      const cards = matchingCards.filter((card) => card.columnId === column.id);
+      const cards = dueFilteredCards.filter((card) => card.columnId === column.id);
       boardElement.append(
     createColumnElement(
           column,
@@ -352,6 +365,34 @@ export function createBoardController({
   }
 
   /**
+   * Sets the due-date filter and refreshes the board.
+   * @param {"all" | "overdue" | "due-soon"} nextFilter Next due-date filter value.
+   * @returns {void}
+   */
+  function setDueDateFilter(nextFilter) {
+    dueDateFilter = nextFilter;
+    render();
+  }
+
+  /**
+   * Filters cards by the active due-date view.
+   * @param {Array<object>} cards Cards already matched by text search.
+   * @param {"all" | "overdue" | "due-soon"} filter Due-date filter.
+   * @returns {Array<object>} Cards allowed by the filter.
+   */
+  function filterCardsByDueDate(cards, filter) {
+    if (filter === "overdue") {
+      return cards.filter((card) => isOverdue(card.dueDate));
+    }
+
+    if (filter === "due-soon") {
+      return cards.filter((card) => isDueSoon(card.dueDate));
+    }
+
+    return cards;
+  }
+
+  /**
    * Updates the live search summary text to reflect the current filter state.
    * @param {{
    *   isFiltering: boolean,
@@ -399,11 +440,52 @@ export function createBoardController({
   function renderBoardSummary(summary, visibleCount) {
     boardSummaryTotalElement.textContent = String(summary.totalCards);
     boardSummaryVisibleElement.textContent = String(visibleCount);
-    boardSummaryFilterElement.textContent = summary.isFiltering
+    boardSummaryFilterElement.textContent = buildBoardFilterSummary(summary);
+  }
+
+  /**
+   * Builds a short status line for the board summary strip.
+   * @param {{
+   *   isFiltering: boolean,
+   *   normalizedQuery: string,
+   *   totalMatches: number,
+   *   totalCards: number,
+   *   columnMatches: Array<{id: string, title: string, count: number}>
+   * }} summary Search summary payload.
+   * @returns {string} Readable board filter status.
+   */
+  function buildBoardFilterSummary(summary) {
+    const searchText = summary.isFiltering
       ? summary.totalMatches === 0
         ? `No cards match "${summary.normalizedQuery}".`
         : `Filtering by "${summary.normalizedQuery}".`
       : "All cards visible.";
+
+    const dueText = getDueDateFilterLabel();
+    return dueText === "All due dates" ? searchText : `${searchText} ${dueText}.`;
+  }
+
+  /**
+   * Returns a readable label for the active due-date filter.
+   * @returns {string} Active due-date filter label.
+   */
+  function getDueDateFilterLabel() {
+    if (dueDateFilter === "overdue") {
+      return "Overdue cards only";
+    }
+
+    if (dueDateFilter === "due-soon") {
+      return "Due soon cards only";
+    }
+
+    return "All due dates";
+  }
+
+  /** Updates button pressed states for the due-date filter group. */
+  function updateDueFilterButtons() {
+    allDueFilterButton.setAttribute("aria-pressed", String(dueDateFilter === "all"));
+    overdueFilterButton.setAttribute("aria-pressed", String(dueDateFilter === "overdue"));
+    dueSoonFilterButton.setAttribute("aria-pressed", String(dueDateFilter === "due-soon"));
   }
 
   /**

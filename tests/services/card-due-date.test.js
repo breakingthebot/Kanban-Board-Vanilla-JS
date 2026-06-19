@@ -6,7 +6,12 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { formatDueDate, isOverdue, normalizeDueDate } from "../../src/services/card-due-date.js";
+import {
+  formatDueDate,
+  isDueSoon,
+  isOverdue,
+  normalizeDueDate,
+} from "../../src/services/card-due-date.js";
 
 test("normalizeDueDate accepts valid dates and trims empty input", () => {
   assert.equal(normalizeDueDate(" 2026-06-30 "), "2026-06-30");
@@ -23,4 +28,7 @@ test("formatDueDate and isOverdue provide readable status", () => {
   assert.equal(formatDueDate("2026-06-30"), "Due Jun 30, 2026");
   assert.equal(isOverdue("2000-01-01", new Date("2026-06-18T12:00:00")), true);
   assert.equal(isOverdue("2099-01-01", new Date("2026-06-18T12:00:00")), false);
+  assert.equal(isDueSoon("2026-06-20", new Date("2026-06-18T12:00:00")), true);
+  assert.equal(isDueSoon("2026-07-20", new Date("2026-06-18T12:00:00")), false);
+  assert.equal(isDueSoon("2000-01-01", new Date("2026-06-18T12:00:00")), false);
 });

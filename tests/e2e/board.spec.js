@@ -83,6 +83,34 @@ test("creates, edits, moves, persists, and deletes a card", async ({ page }) => 
   await expect(page.locator(".card", { hasText: "Production checklist" })).toHaveCount(0);
 });
 
+test("filters cards by due date and clears the filter", async ({ page }) => {
+  await createCard(page, "Overdue task", "Needs attention", "todo", "2000-01-01", "");
+  await createCard(page, "Soon task", "Due shortly", "doing", "2026-06-20", "");
+
+  const allButton = page.getByRole("button", { name: "All dates" });
+  const overdueButton = page.getByRole("button", { name: "Overdue" });
+  const soonButton = page.getByRole("button", { name: "Due soon" });
+
+  await overdueButton.click();
+  await expect(page.locator(".card", { hasText: "Overdue task" })).toBeVisible();
+  await expect(page.locator(".card", { hasText: "Soon task" })).toHaveCount(0);
+  await expect(page.locator("#board-summary-visible")).toHaveText("1");
+  await expect(page.locator("#board-summary-filter")).toContainText("Overdue cards only");
+  await expect(overdueButton).toHaveAttribute("aria-pressed", "true");
+
+  await soonButton.click();
+  await expect(page.locator(".card", { hasText: "Soon task" })).toBeVisible();
+  await expect(page.locator(".card", { hasText: "Overdue task" })).toHaveCount(0);
+  await expect(page.locator("#board-summary-filter")).toContainText("Due soon cards only");
+  await expect(soonButton).toHaveAttribute("aria-pressed", "true");
+
+  await allButton.click();
+  await expect(page.locator(".card", { hasText: "Overdue task" })).toBeVisible();
+  await expect(page.locator(".card", { hasText: "Soon task" })).toBeVisible();
+  await expect(page.locator("#board-summary-filter")).toContainText("All cards visible.");
+  await expect(allButton).toHaveAttribute("aria-pressed", "true");
+});
+
 test("duplicates a card and preserves its labels", async ({ page }) => {
   await createCard(page, "Copy me", "Keep these details", "doing", "2026-06-26", "copy, labels");
   await page.locator(".card", { hasText: "Copy me" }).getByRole("button", { name: "Duplicate" }).click();

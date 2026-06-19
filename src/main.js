@@ -10,6 +10,9 @@ const statusElement = document.querySelector("#board-status");
 const boardSummaryTotalElement = document.querySelector("#board-summary-total");
 const boardSummaryVisibleElement = document.querySelector("#board-summary-visible");
 const boardSummaryFilterElement = document.querySelector("#board-summary-filter");
+const allDueFilterButton = document.querySelector("#all-due-filters");
+const overdueFilterButton = document.querySelector("#overdue-due-filters");
+const dueSoonFilterButton = document.querySelector("#soon-due-filters");
 const searchInput = document.querySelector("#board-search");
 const clearSearchButton = document.querySelector("#clear-search");
 const searchSummaryElement = document.querySelector("#search-summary");
@@ -28,6 +31,9 @@ if (
   !boardSummaryTotalElement ||
   !boardSummaryVisibleElement ||
   !boardSummaryFilterElement ||
+  !allDueFilterButton ||
+  !overdueFilterButton ||
+  !dueSoonFilterButton ||
   !searchInput ||
   !clearSearchButton ||
   !searchSummaryElement ||
@@ -49,6 +55,9 @@ const controller = createBoardController({
   boardSummaryTotalElement,
   boardSummaryVisibleElement,
   boardSummaryFilterElement,
+  allDueFilterButton,
+  overdueFilterButton,
+  dueSoonFilterButton,
   searchInput,
   clearSearchButton,
   searchSummaryElement,

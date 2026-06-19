@@ -9,6 +9,7 @@ export const CARD_DESCRIPTION_MAX_LENGTH = 240;
 export const CARD_LABEL_MAX_LENGTH = 24;
 export const CARD_LABEL_MAX_COUNT = 4;
 export const CARD_DUE_DATE_MAX_LENGTH = 10;
+export const CARD_DUE_SOON_DAYS = 7;
 
 export const COLUMNS = Object.freeze([
   Object.freeze({
