@@ -32,6 +32,8 @@ export function createColumnElement(
   const section = document.createElement("section");
   section.className = "column";
   section.dataset.columnId = column.id;
+  section.style.setProperty("--column-accent", column.accent);
+  section.style.setProperty("--column-accent-soft", column.accentSoft);
   section.setAttribute("aria-labelledby", `${column.id}-title`);
 
   const header = document.createElement("header");

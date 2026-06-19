@@ -25,6 +25,7 @@ A responsive, dependency-free Kanban board for creating, editing, deleting, dupl
 - Search summaries with per-column match counts
 - Card labels with compact chips in each card
 - One-click card duplication that preserves labels and position
+- Color-coded columns and cards to reduce the wall-of-text feel
 
 No database or runtime framework is required.
 
@@ -84,7 +85,7 @@ Production deployment is managed through the Vercel CLI. The deployed URL is add
 
 ## Architecture Notes
 
-The app is a small browser board with three clear layers. Configuration defines the columns and starter cards. Pure model functions validate, order, and move cards without touching the page, while storage owns serialization to one versioned `localStorage` key. A separate backup service turns the current board state into JSON and validates backups before they replace the active state. A lightweight history service tracks session-only undo and redo points so users can reverse recent edits without changing the saved schema, and the controller also listens for keyboard shortcuts so the same history works without buttons. A small search service filters cards in memory by title, description, or labels and another helper summarizes the visible matches per column with a compact inline count display. A shared label helper parses comma-separated labels, keeps storage normalized, and formats them back into editable text. Card duplication reuses the same immutable state flow so a copied card gets a fresh ID, sits next to the source card, and keeps its labels. UI components create DOM elements with `textContent`; a dedicated drag service translates mouse, touch, and pen gestures into placements; and the controller coordinates state, rendering, persistence, feedback, backup actions, history, search, and duplication. Unit tests cover isolated rules, while Playwright exercises complete desktop and mobile workflows and Axe checks WCAG-impacting accessibility failures.
+The app is a small browser board with three clear layers. Configuration defines the columns and starter cards. Pure model functions validate, order, and move cards without touching the page, while storage owns serialization to one versioned `localStorage` key. A separate backup service turns the current board state into JSON and validates backups before they replace the active state. A lightweight history service tracks session-only undo and redo points so users can reverse recent edits without changing the saved schema, and the controller also listens for keyboard shortcuts so the same history works without buttons. A small search service filters cards in memory by title, description, or labels and another helper summarizes the visible matches per column with a compact inline count display. A shared label helper parses comma-separated labels, keeps storage normalized, and formats them back into editable text. Card duplication reuses the same immutable state flow so a copied card gets a fresh ID, sits next to the source card, and keeps its labels. The visual layer now uses per-column color accents and subtler card borders so the board reads as a workspace instead of a plain text grid. UI components create DOM elements with `textContent`; a dedicated drag service translates mouse, touch, and pen gestures into placements; and the controller coordinates state, rendering, persistence, feedback, backup actions, history, search, and duplication. Unit tests cover isolated rules, while Playwright exercises complete desktop and mobile workflows and Axe checks WCAG-impacting accessibility failures.
 
 ## Usage
 
@@ -100,6 +101,7 @@ The app is a small browser board with three clear layers. Configuration defines 
 - Add labels with commas in the card dialog; they appear as chips on the card and are searchable.
 - Use Duplicate on a card to create a copy in the same column with the same labels.
 - Read the search summary to see per-column counts and whether anything matched. The counts stay compact on narrow screens.
+- The board uses color accents to distinguish each column at a glance.
 - Select **Edit** on a card to update its content, column, or delete it.
 - Reload the page to confirm card positions persist.
 - Select **Reset board** to restore the sample cards.

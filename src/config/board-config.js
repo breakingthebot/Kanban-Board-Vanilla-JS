@@ -10,9 +10,24 @@ export const CARD_LABEL_MAX_LENGTH = 24;
 export const CARD_LABEL_MAX_COUNT = 4;
 
 export const COLUMNS = Object.freeze([
-  Object.freeze({ id: "todo", title: "To do" }),
-  Object.freeze({ id: "doing", title: "In progress" }),
-  Object.freeze({ id: "done", title: "Done" }),
+  Object.freeze({
+    id: "todo",
+    title: "To do",
+    accent: "#3157d5",
+    accentSoft: "#e9eeff",
+  }),
+  Object.freeze({
+    id: "doing",
+    title: "In progress",
+    accent: "#b54708",
+    accentSoft: "#fff4e5",
+  }),
+  Object.freeze({
+    id: "done",
+    title: "Done",
+    accent: "#027a48",
+    accentSoft: "#e8f9f0",
+  }),
 ]);
 
 export const INITIAL_CARDS = Object.freeze([

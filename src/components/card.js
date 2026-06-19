@@ -31,6 +31,7 @@ export function createCardElement(
   article.className = "card";
   article.draggable = true;
   article.dataset.cardId = card.id;
+  article.dataset.columnId = card.columnId;
   article.tabIndex = 0;
   article.setAttribute("aria-label", `${card.title}. Draggable task card.`);
 
@@ -43,6 +44,7 @@ export function createCardElement(
 
   const description = document.createElement("p");
   description.textContent = card.description;
+  description.className = "card__description";
 
   const labels = createLabels(card.labels);
 
