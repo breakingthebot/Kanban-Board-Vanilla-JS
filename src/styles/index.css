@@ -357,16 +357,16 @@ h1 {
   margin-bottom: 0.85rem;
   padding: 0.2rem 0.55rem;
   border-radius: 999px;
-  background: color-mix(in srgb, var(--column-accent-soft, var(--accent-soft)) 72%, white);
-  color: #1f2f7a;
+  background: #dbe4ff;
+  color: #1b2f78 !important;
   font-size: 0.72rem;
   font-weight: 650;
   line-height: 1.4;
 }
 
 .card .card__due-date[data-overdue="true"] {
-  background: #fef3f2;
-  color: var(--danger);
+  background: #fee4e2;
+  color: #7a271a !important;
 }
 
 .drag-handle {

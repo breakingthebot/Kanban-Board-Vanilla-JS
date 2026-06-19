@@ -35,6 +35,7 @@ All notable changes to this project are documented here.
 
 ### Changed
 
+- Package version bumped to 1.16.0 for the due-date follow-up release.
 - Package version bumped to 1.15.0 for the due-date release.
 - Package version bumped to 1.14.0 for the compact-summary release.
 - Package version bumped to 1.13.0 for the visual refresh release.
@@ -44,6 +45,13 @@ All notable changes to this project are documented here.
 - Package version bumped to 1.10.0 for the search-summary release.
 - README now documents the branch-based development workflow.
 - Browser tests now scope column assertions to an exact `data-column-id` target.
+
+## [1.16.0] - 2026-06-18
+
+### Added
+
+- Due-date badges with improved contrast and overdue highlighting.
+- Browser and unit coverage for due-date display and validation.
 
 ## [1.15.0] - 2026-06-18
 
