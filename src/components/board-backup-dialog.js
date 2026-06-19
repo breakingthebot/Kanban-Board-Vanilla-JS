@@ -16,9 +16,13 @@ export function createBoardBackupDialog({ dialogElement, onImport }) {
   const textarea = dialogElement.querySelector("#board-backup-data");
   const errorElement = dialogElement.querySelector("#board-backup-error");
   const cancelButton = dialogElement.querySelector("#cancel-board-backup");
+  const fileButton = dialogElement.querySelector("#choose-board-file");
+  const fileInput = dialogElement.querySelector("#board-backup-file");
 
   form.addEventListener("submit", handleSubmit);
   cancelButton.addEventListener("click", close);
+  fileButton.addEventListener("click", openFilePicker);
+  fileInput.addEventListener("change", handleFileSelection);
   dialogElement.addEventListener("close", reset);
 
   /**
@@ -39,6 +43,29 @@ export function createBoardBackupDialog({ dialogElement, onImport }) {
     dialogElement.close();
   }
 
+  /** Opens the file picker for JSON backup files. */
+  function openFilePicker() {
+    fileInput.click();
+  }
+
+  /**
+   * Loads a selected JSON file into the import textarea.
+   * @param {Event} event Native file input change event.
+   * @returns {Promise<void>}
+   */
+  async function handleFileSelection(event) {
+    const selectedFile = event.target.files?.[0];
+    if (!selectedFile) return;
+
+    try {
+      textarea.value = await selectedFile.text();
+      errorElement.textContent = "";
+    } catch (error) {
+      errorElement.textContent = `Unable to read "${selectedFile.name}".`;
+      textarea.focus();
+    }
+  }
+
   /** @param {SubmitEvent} event Native form submission event. */
   function handleSubmit(event) {
     event.preventDefault();
@@ -57,6 +84,7 @@ export function createBoardBackupDialog({ dialogElement, onImport }) {
   function reset() {
     form.reset();
     errorElement.textContent = "";
+    fileInput.value = "";
   }
 
   return { open, close };

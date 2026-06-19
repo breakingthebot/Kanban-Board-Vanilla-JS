@@ -108,8 +108,17 @@
         <p id="board-backup-error" class="form-error" role="alert"></p>
 
         <div class="dialog__actions">
+          <button id="choose-board-file" class="button button--secondary" type="button">
+            Load file
+          </button>
           <button class="button button--primary" type="submit">Import board</button>
         </div>
+        <input
+          id="board-backup-file"
+          type="file"
+          accept=".json,application/json"
+          hidden
+        />
       </form>
     </dialog>
 

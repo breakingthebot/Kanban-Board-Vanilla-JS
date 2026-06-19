@@ -327,6 +327,10 @@ h1 {
   margin-left: auto;
 }
 
+.dialog__actions .button--secondary {
+  margin-right: auto;
+}
+
 .form-error {
   min-height: 1.25rem;
   margin-bottom: 0;

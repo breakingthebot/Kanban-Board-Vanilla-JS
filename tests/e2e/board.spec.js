@@ -85,6 +85,33 @@ test("imports a JSON backup through the public dialog workflow", async ({ page }
   await expect(page.locator('[data-column-id="done"] .card', { hasText: "Imported task" })).toBeVisible();
 });
 
+test("loads a JSON backup file into the import dialog", async ({ page }) => {
+  const backup = {
+    cards: [
+      {
+        id: "file-imported-card",
+        title: "File imported task",
+        description: "Restored from a JSON file",
+        columnId: "todo",
+      },
+    ],
+  };
+
+  await page.getByRole("button", { name: "Import board" }).click();
+  const dialog = page.getByRole("dialog", { name: "Import board backup" });
+  await dialog.getByRole("button", { name: "Load file" }).click();
+  await dialog.locator("#board-backup-file").setInputFiles({
+    name: "board-backup.json",
+    mimeType: "application/json",
+    buffer: Buffer.from(JSON.stringify(backup, null, 2)),
+  });
+  await dialog.getByRole("button", { name: "Import board" }).click();
+  await page.reload();
+
+  await expect(page.locator(".card", { hasText: "File imported task" })).toBeVisible();
+  await expect(page.locator('[data-column-id="todo"] .card', { hasText: "File imported task" })).toBeVisible();
+});
+
 test("preserves keyboard and mouse ordering after reload", async ({ page }) => {
   await createCard(page, "Second task", "", "todo");
   await createCard(page, "Third task", "", "todo");

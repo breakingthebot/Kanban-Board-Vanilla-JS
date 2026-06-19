@@ -18,7 +18,7 @@ A responsive, dependency-free Kanban board for creating, editing, deleting, movi
 - Playwright browser testing with Axe accessibility scanning
 - GitHub Actions continuous integration
 - Browser `localStorage`
-- JSON backup import/export in the browser
+- JSON backup import/export in the browser, including file-based restore
 
 No database or runtime framework is required.
 
@@ -66,7 +66,7 @@ npm run test:e2e
 
 GitHub Actions runs the same command on every push and pull request using Node.js 22.
 
-Export the current board from the header controls to download a JSON backup. Use the import control to paste a backup back into the board and replace the current saved state.
+Export the current board from the header controls to download a JSON backup. Use the import control to paste a backup back into the board, or load a `.json` file, and replace the current saved state.
 
 ## Development Workflow
 
@@ -78,7 +78,7 @@ Production deployment is managed through the Vercel CLI. The deployed URL is add
 
 ## Architecture Notes
 
-The app is a small browser board with three clear layers. Configuration defines the columns and starter cards. Pure model functions validate, order, and move cards without touching the page, while storage owns serialization to one versioned `localStorage` key. A separate backup service turns the current board state into JSON and validates pasted backups before they replace the active state. UI components create DOM elements with `textContent`; a dedicated drag service translates mouse, touch, and pen gestures into placements; and the controller coordinates state, rendering, persistence, feedback, and backup actions. Unit tests cover isolated rules, while Playwright exercises complete desktop and mobile workflows and Axe checks WCAG-impacting accessibility failures.
+The app is a small browser board with three clear layers. Configuration defines the columns and starter cards. Pure model functions validate, order, and move cards without touching the page, while storage owns serialization to one versioned `localStorage` key. A separate backup service turns the current board state into JSON and validates backups before they replace the active state. UI components create DOM elements with `textContent`; a dedicated drag service translates mouse, touch, and pen gestures into placements; and the controller coordinates state, rendering, persistence, feedback, and backup actions. Unit tests cover isolated rules, while Playwright exercises complete desktop and mobile workflows and Axe checks WCAG-impacting accessibility failures.
 
 ## Usage
 
@@ -86,7 +86,7 @@ The app is a small browser board with three clear layers. Configuration defines 
 - Drag from the card handle with touch or pen input.
 - Use the up, down, left, and right buttons for keyboard-accessible ordering.
 - Select **Create card** to add validated work to any column.
-- Use **Import board** to paste a JSON backup from another browser session.
+- Use **Import board** to paste a JSON backup from another browser session or load a `.json` file.
 - Use **Export board** to download a JSON backup of the current board.
 - Select **Edit** on a card to update its content, column, or delete it.
 - Reload the page to confirm card positions persist.
