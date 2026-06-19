@@ -88,6 +88,7 @@ export function createBoardController({
     exportButton.addEventListener("click", exportBackup);
     undoButton.addEventListener("click", undoLastChange);
     redoButton.addEventListener("click", redoLastChange);
+    document.addEventListener("keydown", handleKeyboardShortcut);
     dragManager.initialize();
     updateHistoryControls();
   }
@@ -278,6 +279,26 @@ export function createBoardController({
   }
 
   /**
+   * Handles keyboard shortcuts for undo and redo without interfering with forms.
+   * @param {KeyboardEvent} event Native keydown event.
+   * @returns {void}
+   */
+  function handleKeyboardShortcut(event) {
+    if (!isHistoryShortcut(event) || isEditableTarget(event.target)) {
+      return;
+    }
+
+    event.preventDefault();
+
+    if (event.key.toLowerCase() === "z" && !event.shiftKey) {
+      undoLastChange();
+      return;
+    }
+
+    redoLastChange();
+  }
+
+  /**
    * Persists current state and reports whether the change is durable.
    * @param {string} successMessage Message shown after successful persistence.
    * @returns {void}
@@ -329,6 +350,31 @@ export function createBoardController({
    */
   function getColumnTitle(columnId) {
     return COLUMNS.find((column) => column.id === columnId)?.title ?? columnId;
+  }
+
+  /**
+   * Determines whether a key combination maps to undo or redo.
+   * @param {KeyboardEvent} event Native keydown event.
+   * @returns {boolean} Whether the event is a supported history shortcut.
+   */
+  function isHistoryShortcut(event) {
+    const key = event.key.toLowerCase();
+    return (event.ctrlKey || event.metaKey) && (key === "z" || key === "y");
+  }
+
+  /**
+   * Detects whether focus is inside an editable element where shortcuts should be ignored.
+   * @param {EventTarget|null} target Event target to inspect.
+   * @returns {boolean} Whether the target is a text-entry control.
+   */
+  function isEditableTarget(target) {
+    if (!(target instanceof HTMLElement)) {
+      return false;
+    }
+
+    return Boolean(
+      target.closest("input, textarea, select, [contenteditable='true']"),
+    );
   }
 
   return { initialize };

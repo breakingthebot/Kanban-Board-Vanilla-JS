@@ -13,6 +13,7 @@ All notable changes to this project are documented here.
 
 ### Added
 
+- Keyboard shortcuts for session undo and redo.
 - Session-based undo and redo controls for recent board changes.
 - Board history service and tests for recording, undoing, and redoing state snapshots.
 - File-based board backup import from the existing import dialog.
@@ -23,9 +24,16 @@ All notable changes to this project are documented here.
 
 ### Changed
 
-- Package version bumped to 1.7.0 for the undo/redo release.
+- Package version bumped to 1.8.0 for the keyboard-shortcut release.
 - README now documents the branch-based development workflow.
 - Browser tests now scope column assertions to an exact `data-column-id` target.
+
+## [1.8.0] - 2026-06-18
+
+### Added
+
+- Keyboard shortcuts for undo and redo in the browser app.
+- Browser coverage for undo/redo keyboard shortcuts.
 
 ## [1.7.0] - 2026-06-18
 

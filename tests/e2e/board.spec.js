@@ -116,11 +116,30 @@ test("undoes and redoes a card creation in the current session", async ({ page }
   await createCard(page, "Temporary task", "", "todo");
 
   await expect(page.locator(".card", { hasText: "Temporary task" })).toBeVisible();
-  await page.getByRole("button", { name: "Undo" }).click({ force: true });
+  await page.keyboard.press("Control+z");
   await expect(page.locator(".card", { hasText: "Temporary task" })).toHaveCount(0);
 
-  await page.getByRole("button", { name: "Redo" }).click({ force: true });
+  await page.keyboard.press("Control+Shift+z");
   await expect(page.locator(".card", { hasText: "Temporary task" })).toBeVisible();
+});
+
+test("uses keyboard shortcuts to undo and redo without affecting text inputs", async ({
+  page,
+}) => {
+  await page.getByRole("button", { name: "Create card" }).click();
+  const editor = page.getByRole("dialog", { name: "Create card" });
+  await editor.getByLabel("Title").fill("Shortcut task");
+  await editor.getByLabel("Description").fill("Undo should not fire here");
+  await editor.getByLabel("Title").press("Control+z");
+  await expect(editor.getByLabel("Title")).toHaveValue("Shortcut task");
+  await editor.getByLabel("Column").selectOption("todo");
+  await editor.getByRole("button", { name: "Save card" }).click({ force: true });
+
+  await expect(page.locator(".card", { hasText: "Shortcut task" })).toBeVisible();
+  await page.keyboard.press("Control+z");
+  await expect(page.locator(".card", { hasText: "Shortcut task" })).toHaveCount(0);
+  await page.keyboard.press("Control+y");
+  await expect(page.locator(".card", { hasText: "Shortcut task" })).toBeVisible();
 });
 
 test("preserves keyboard and mouse ordering after reload", async ({ page }) => {
