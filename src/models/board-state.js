@@ -5,6 +5,7 @@
 
 import {
   CARD_DESCRIPTION_MAX_LENGTH,
+  CARD_DUE_DATE_MAX_LENGTH,
   CARD_LABEL_MAX_COUNT,
   CARD_LABEL_MAX_LENGTH,
   CARD_TITLE_MAX_LENGTH,
@@ -12,6 +13,7 @@ import {
   INITIAL_CARDS,
 } from "../config/board-config.js";
 import { normalizeLabels } from "../services/card-labels.js";
+import { normalizeDueDate } from "../services/card-due-date.js";
 
 /**
  * Creates a fresh board state from the configured sample cards.
@@ -45,6 +47,11 @@ export function isValidState(state) {
       card.title.length <= CARD_TITLE_MAX_LENGTH &&
       typeof card.description === "string" &&
       card.description.length <= CARD_DESCRIPTION_MAX_LENGTH &&
+      (card.dueDate === undefined ||
+        (typeof card.dueDate === "string" &&
+          card.dueDate.length === CARD_DUE_DATE_MAX_LENGTH &&
+          /^\d{4}-\d{2}-\d{2}$/.test(card.dueDate) &&
+          isValidDueDate(card.dueDate))) &&
       (card.labels === undefined ||
         (Array.isArray(card.labels) &&
           card.labels.length <= CARD_LABEL_MAX_COUNT &&
@@ -203,6 +210,7 @@ function normalizeCard(cardId, input) {
   const title = typeof input?.title === "string" ? input.title.trim() : "";
   const description =
     typeof input?.description === "string" ? input.description.trim() : "";
+  const dueDate = normalizeDueDate(input?.dueDate);
   const columnId = input?.columnId;
   const labels = normalizeLabels(input?.labels);
 
@@ -222,7 +230,7 @@ function normalizeCard(cardId, input) {
     throw new Error(`Cannot save card: unknown column "${columnId}".`);
   }
 
-  return { id: cardId, title, description, labels, columnId };
+  return { id: cardId, title, description, dueDate, labels, columnId };
 }
 
 /**
@@ -235,4 +243,18 @@ function cloneCard(card) {
     ...card,
     labels: Array.isArray(card.labels) ? [...card.labels] : [],
   };
+}
+
+/**
+ * Checks whether a persisted due date is a real calendar date.
+ * @param {string} dueDate Due date string.
+ * @returns {boolean} Whether the date is valid.
+ */
+function isValidDueDate(dueDate) {
+  try {
+    normalizeDueDate(dueDate);
+    return true;
+  } catch {
+    return false;
+  }
 }

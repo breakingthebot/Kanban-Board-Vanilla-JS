@@ -158,6 +158,7 @@ export function createBoardController({
     const insertedState = addCard(state, duplicateId, {
       title: duplicateTitle,
       description: sourceCard.description,
+      dueDate: sourceCard.dueDate ?? "",
       labels: sourceCard.labels ?? [],
       columnId: sourceCard.columnId,
     });

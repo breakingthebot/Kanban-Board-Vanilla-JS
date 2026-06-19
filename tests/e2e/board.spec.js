@@ -42,18 +42,21 @@ test("creates, edits, moves, persists, and deletes a card", async ({ page }) => 
     "Release checklist",
     "Confirm launch tasks",
     "todo",
+    "2026-06-25",
     "launch, release",
   );
   await page.reload();
 
   const createdCard = page.locator(".card", { hasText: "Release checklist" });
   await expect(createdCard).toBeVisible();
+  await expect(createdCard.locator(".card__due-date")).toContainText("Due");
   await expect(createdCard.locator(".card__label")).toHaveText(["launch", "release"]);
   await createdCard.getByRole("button", { name: "Edit" }).click();
 
   const editor = page.getByRole("dialog", { name: "Edit card" });
   await editor.getByLabel("Title").fill("Production checklist");
   await editor.getByLabel("Description").fill("Confirm the production launch tasks");
+  await editor.getByLabel("Due date").fill("2026-06-27");
   await editor.getByLabel("Labels").fill("production, launch");
   await editor.getByLabel("Column").selectOption("done");
   await editor.getByRole("button", { name: "Save card" }).click({ force: true });
@@ -61,6 +64,7 @@ test("creates, edits, moves, persists, and deletes a card", async ({ page }) => 
 
   const updatedCard = page.locator(".card", { hasText: "Production checklist" });
   await expect(updatedCard).toBeVisible();
+  await expect(updatedCard.locator(".card__due-date")).toContainText("Due");
   await expect(updatedCard.locator(".card__label")).toHaveText(["production", "launch"]);
   await expect(
     page.locator('[data-column-id="done"] .card', {
@@ -80,7 +84,7 @@ test("creates, edits, moves, persists, and deletes a card", async ({ page }) => 
 });
 
 test("duplicates a card and preserves its labels", async ({ page }) => {
-  await createCard(page, "Copy me", "Keep these details", "doing", "copy, labels");
+  await createCard(page, "Copy me", "Keep these details", "doing", "2026-06-26", "copy, labels");
   await page.locator(".card", { hasText: "Copy me" }).getByRole("button", { name: "Duplicate" }).click();
 
   const originalCard = page.locator(".card", { hasText: "Copy me" }).first();
@@ -91,6 +95,7 @@ test("duplicates a card and preserves its labels", async ({ page }) => {
 
   await expect(originalCard).toBeVisible();
   await expect(duplicateCard).toBeVisible();
+  await expect(duplicateCard.locator(".card__due-date")).toContainText("Due");
   await expect(duplicateCard.locator(".card__label")).toHaveText(["copy", "labels"]);
   await expect(copiedCards).toHaveCount(2);
 });
@@ -145,7 +150,7 @@ test("loads a JSON backup file into the import dialog", async ({ page }) => {
 });
 
 test("undoes and redoes a card creation in the current session", async ({ page }) => {
-  await createCard(page, "Temporary task", "", "todo");
+  await createCard(page, "Temporary task", "", "todo", "");
 
   await expect(page.locator(".card", { hasText: "Temporary task" })).toBeVisible();
   await page.keyboard.press("Control+z");
@@ -199,8 +204,8 @@ test("filters cards with the search field and clears the filter", async ({ page 
 });
 
 test("preserves keyboard and mouse ordering after reload", async ({ page }) => {
-  await createCard(page, "Second task", "", "todo");
-  await createCard(page, "Third task", "", "todo");
+  await createCard(page, "Second task", "", "todo", "");
+  await createCard(page, "Third task", "", "todo", "");
 
   const thirdCard = page.locator(".card", { hasText: "Third task" });
   await thirdCard.getByRole("button", { name: "Move up" }).click();
@@ -229,14 +234,18 @@ test("preserves keyboard and mouse ordering after reload", async ({ page }) => {
  * @param {string} title Card title.
  * @param {string} description Card description.
  * @param {string} columnId Destination column identifier.
+ * @param {string} [dueDate=""] Optional YYYY-MM-DD due date.
  * @param {string} [labels=""] Optional comma-separated labels.
  * @returns {Promise<void>}
  */
-async function createCard(page, title, description, columnId, labels = "") {
+async function createCard(page, title, description, columnId, dueDate = "", labels = "") {
   await page.getByRole("button", { name: "Create card" }).click();
   const editor = page.getByRole("dialog", { name: "Create card" });
   await editor.getByLabel("Title").fill(title);
   await editor.getByLabel("Description").fill(description);
+  if (dueDate) {
+    await editor.getByLabel("Due date").fill(dueDate);
+  }
   if (labels) {
     await editor.getByLabel("Labels").fill(labels);
   }

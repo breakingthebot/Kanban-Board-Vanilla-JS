@@ -56,6 +56,8 @@ test("isValidState rejects persisted fields beyond configured limits", () => {
   oversizedTitle.cards[0].title = "x".repeat(81);
   const oversizedDescription = createInitialState();
   oversizedDescription.cards[0].description = "x".repeat(241);
+  const invalidDueDate = createInitialState();
+  invalidDueDate.cards[0].dueDate = "2026-06-31";
   const oversizedLabels = createInitialState();
   oversizedLabels.cards[0].labels = ["x".repeat(25)];
   const tooManyLabels = createInitialState();
@@ -63,6 +65,7 @@ test("isValidState rejects persisted fields beyond configured limits", () => {
 
   assert.equal(isValidState(oversizedTitle), false);
   assert.equal(isValidState(oversizedDescription), false);
+  assert.equal(isValidState(invalidDueDate), false);
   assert.equal(isValidState(oversizedLabels), false);
   assert.equal(isValidState(tooManyLabels), false);
 });
@@ -152,6 +155,7 @@ test("addCard trims valid input without mutating existing state", () => {
   const result = addCard(state, "card-new", {
     title: "  New task  ",
     description: "  Details  ",
+    dueDate: " 2026-06-30 ",
     labels: ["  launch  ", "release", "launch"],
     columnId: "todo",
   });
@@ -161,6 +165,7 @@ test("addCard trims valid input without mutating existing state", () => {
     id: "card-new",
     title: "New task",
     description: "Details",
+    dueDate: "2026-06-30",
     labels: ["launch", "release"],
     columnId: "todo",
   });
@@ -197,6 +202,14 @@ test("addCard rejects invalid fields and duplicate IDs", () => {
       }),
     /labels must be 24 characters or fewer/,
   );
+  assert.throws(
+    () =>
+      addCard(state, "card-new", {
+        ...state.cards[0],
+        dueDate: "2026-06-31",
+      }),
+    /valid calendar dates/,
+  );
 });
 
 test("updateCard changes editable fields and preserves the card ID", () => {
@@ -205,6 +218,7 @@ test("updateCard changes editable fields and preserves the card ID", () => {
   const result = updateCard(state, cardId, {
     title: "Updated task",
     description: "Updated details",
+    dueDate: "2026-07-04",
     labels: ["planning", "launch"],
     columnId: "done",
   });
@@ -213,6 +227,7 @@ test("updateCard changes editable fields and preserves the card ID", () => {
     id: cardId,
     title: "Updated task",
     description: "Updated details",
+    dueDate: "2026-07-04",
     labels: ["planning", "launch"],
     columnId: "done",
   });

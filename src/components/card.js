@@ -3,6 +3,8 @@
 // Connects to: components/column.js and services/card-drag.js.
 // Created: 2026-06-18
 
+import { formatDueDate, isOverdue } from "../services/card-due-date.js";
+
 /**
  * Creates a card element without injecting untrusted content as HTML.
  * @param {object} card Serializable card data.
@@ -32,6 +34,7 @@ export function createCardElement(
   article.draggable = true;
   article.dataset.cardId = card.id;
   article.dataset.columnId = card.columnId;
+  article.dataset.overdue = String(isOverdue(card.dueDate));
   article.tabIndex = 0;
   article.setAttribute("aria-label", `${card.title}. Draggable task card.`);
 
@@ -46,6 +49,7 @@ export function createCardElement(
   description.textContent = card.description;
   description.className = "card__description";
 
+  const dueDate = createDueDateBadge(card.dueDate);
   const labels = createLabels(card.labels);
 
   const controls = document.createElement("div");
@@ -83,12 +87,36 @@ export function createCardElement(
   );
 
   const content = [cardHeader, description];
+  if (dueDate) {
+    content.push(dueDate);
+  }
   if (labels) {
     content.push(labels);
   }
   content.push(controls);
   article.append(...content);
   return article;
+}
+
+/**
+ * Creates a due-date badge when a card has a deadline.
+ * @param {string|undefined} dueDate Due date string.
+ * @returns {HTMLElement|null} Due date badge or null when empty.
+ */
+function createDueDateBadge(dueDate) {
+  if (!dueDate) {
+    return null;
+  }
+
+  const badge = document.createElement("p");
+  badge.className = "card__due-date";
+  badge.textContent = formatDueDate(dueDate);
+  badge.dataset.overdue = String(isOverdue(dueDate));
+  if (badge.dataset.overdue === "true") {
+    badge.textContent = `${badge.textContent} • Overdue`;
+  }
+
+  return badge;
 }
 
 /**

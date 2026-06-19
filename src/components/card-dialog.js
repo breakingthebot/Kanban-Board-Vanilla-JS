@@ -29,6 +29,7 @@ export function createCardDialog({
   const heading = dialogElement.querySelector("#card-dialog-title");
   const titleInput = dialogElement.querySelector("#card-title");
   const descriptionInput = dialogElement.querySelector("#card-description");
+  const dueDateInput = dialogElement.querySelector("#card-due-date");
   const labelsInput = dialogElement.querySelector("#card-labels");
   const columnSelect = dialogElement.querySelector("#card-column");
   const errorElement = dialogElement.querySelector("#card-form-error");
@@ -39,6 +40,9 @@ export function createCardDialog({
   populateColumns(columnSelect);
   titleInput.maxLength = CARD_TITLE_MAX_LENGTH;
   descriptionInput.maxLength = CARD_DESCRIPTION_MAX_LENGTH;
+  if (dueDateInput) {
+    dueDateInput.maxLength = 10;
+  }
   if (labelsInput) {
     labelsInput.maxLength = 128;
   }
@@ -67,6 +71,9 @@ export function createCardDialog({
     heading.textContent = "Edit card";
     titleInput.value = card.title;
     descriptionInput.value = card.description;
+    if (dueDateInput) {
+      dueDateInput.value = card.dueDate ?? "";
+    }
     if (labelsInput) {
       labelsInput.value = formatLabelInput(card.labels);
     }
@@ -90,6 +97,7 @@ export function createCardDialog({
       onSave(editingCardId, {
         title: titleInput.value,
         description: descriptionInput.value,
+        dueDate: dueDateInput?.value ?? "",
         labels: parseLabelInput(labelsInput?.value ?? ""),
         columnId: columnSelect.value,
       });

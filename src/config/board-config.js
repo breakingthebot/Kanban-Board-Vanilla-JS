@@ -8,6 +8,7 @@ export const CARD_TITLE_MAX_LENGTH = 80;
 export const CARD_DESCRIPTION_MAX_LENGTH = 240;
 export const CARD_LABEL_MAX_LENGTH = 24;
 export const CARD_LABEL_MAX_COUNT = 4;
+export const CARD_DUE_DATE_MAX_LENGTH = 10;
 
 export const COLUMNS = Object.freeze([
   Object.freeze({
@@ -36,6 +37,7 @@ export const INITIAL_CARDS = Object.freeze([
     title: "Review project requirements",
     description: "Confirm the scope and identify the first deliverable.",
     labels: Object.freeze(["planning", "scope"]),
+    dueDate: "2026-06-30",
     columnId: "todo",
   }),
   Object.freeze({
@@ -43,6 +45,7 @@ export const INITIAL_CARDS = Object.freeze([
     title: "Build the board layout",
     description: "Create responsive columns and accessible card controls.",
     labels: Object.freeze(["ui", "responsive"]),
+    dueDate: "2026-07-03",
     columnId: "doing",
   }),
   Object.freeze({
@@ -50,6 +53,7 @@ export const INITIAL_CARDS = Object.freeze([
     title: "Create the repository",
     description: "Set up source control and project documentation.",
     labels: Object.freeze(["setup", "documentation"]),
+    dueDate: "2026-06-20",
     columnId: "done",
   }),
 ]);
