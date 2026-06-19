@@ -13,6 +13,7 @@
  * @param {(cardId: string, direction: number) => void} onMoveColumn Column move callback.
  * @param {(cardId: string, direction: number) => void} onReorder Reorder callback.
  * @param {(cardId: string) => void} onEdit Edit callback.
+ * @param {(cardId: string) => void} onDuplicate Duplicate callback.
  * @returns {HTMLElement} Fully configured card article.
  */
 export function createCardElement(
@@ -24,6 +25,7 @@ export function createCardElement(
   onMoveColumn,
   onReorder,
   onEdit,
+  onDuplicate,
 ) {
   const article = document.createElement("article");
   article.className = "card";
@@ -50,6 +52,7 @@ export function createCardElement(
 
   controls.append(
     createEditButton(card.id, onEdit),
+    createDuplicateButton(card.id, onDuplicate),
     createMoveButton("Move up", "\u2191", -1, cardIndex === 0, card.id, onReorder),
     createMoveButton(
       "Move down",
@@ -136,6 +139,21 @@ function createEditButton(cardId, onEdit) {
   button.type = "button";
   button.textContent = "Edit";
   button.addEventListener("click", () => onEdit(cardId));
+  return button;
+}
+
+/**
+ * Creates the card duplicate button.
+ * @param {string} cardId Card identifier.
+ * @param {(cardId: string) => void} onDuplicate Duplicate callback.
+ * @returns {HTMLButtonElement} Configured duplicate button.
+ */
+function createDuplicateButton(cardId, onDuplicate) {
+  const button = document.createElement("button");
+  button.className = "text-button";
+  button.type = "button";
+  button.textContent = "Duplicate";
+  button.addEventListener("click", () => onDuplicate(cardId));
   return button;
 }
 

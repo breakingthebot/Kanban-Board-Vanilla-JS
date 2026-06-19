@@ -13,6 +13,7 @@ All notable changes to this project are documented here.
 
 ### Added
 
+- Card duplication with preserved labels and duplicate placement near the source card.
 - Card labels with persistence, display chips, and label-aware search.
 - Search summary counts now use a compact inline separator for easier reading.
 - Search summary with per-column match counts and empty-result feedback.
@@ -30,11 +31,19 @@ All notable changes to this project are documented here.
 
 ### Changed
 
+- Package version bumped to 1.12.0 for the card-duplication release.
 - Package version bumped to 1.11.0 for the card-labels release.
 - Package version bumped to 1.10.1 for the search-summary polish release.
 - Package version bumped to 1.10.0 for the search-summary release.
 - README now documents the branch-based development workflow.
 - Browser tests now scope column assertions to an exact `data-column-id` target.
+
+## [1.12.0] - 2026-06-18
+
+### Added
+
+- Card duplication button on each card.
+- Browser coverage for duplicated cards and preserved labels.
 
 ## [1.11.0] - 2026-06-18
 

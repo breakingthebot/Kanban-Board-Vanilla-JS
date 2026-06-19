@@ -14,6 +14,7 @@ import { createCardElement } from "./card.js";
  * @param {(cardId: string, direction: number) => void} onMoveColumn Column move callback.
  * @param {(cardId: string, direction: number) => void} onReorder Reorder callback.
  * @param {(cardId: string) => void} onEdit Edit callback.
+ * @param {(cardId: string) => void} onDuplicate Duplicate callback.
  * @param {string} [emptyStateText="Drop a card here"] Empty-state message.
  * @returns {HTMLElement} Configured column section.
  */
@@ -25,6 +26,7 @@ export function createColumnElement(
   onMoveColumn,
   onReorder,
   onEdit,
+  onDuplicate,
   emptyStateText = "Drop a card here",
 ) {
   const section = document.createElement("section");
@@ -64,6 +66,7 @@ export function createColumnElement(
           onMoveColumn,
           onReorder,
           onEdit,
+          onDuplicate,
         ),
       );
     });

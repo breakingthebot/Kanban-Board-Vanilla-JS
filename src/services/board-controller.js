@@ -113,7 +113,7 @@ export function createBoardController({
     COLUMNS.forEach((column, index) => {
       const cards = matchingCards.filter((card) => card.columnId === column.id);
       boardElement.append(
-        createColumnElement(
+    createColumnElement(
           column,
           cards,
           index,
@@ -121,6 +121,7 @@ export function createBoardController({
           moveByDirection,
           reorderByDirection,
           openCardEditor,
+          duplicateCard,
           searchSummary.isFiltering ? "No matching cards" : undefined,
         ),
       );
@@ -131,6 +132,41 @@ export function createBoardController({
   function openCardEditor(cardId) {
     const card = state.cards.find((candidate) => candidate.id === cardId);
     if (card) cardDialog.openEdit(card);
+  }
+
+  /**
+   * Creates a copy of an existing card and places it near the source card.
+   * @param {string} cardId Card identifier to duplicate.
+   * @returns {void}
+   */
+  function duplicateCard(cardId) {
+    const sourceCard = state.cards.find((candidate) => candidate.id === cardId);
+    if (!sourceCard) {
+      setStatus("The card could not be duplicated.", true);
+      return;
+    }
+
+    const duplicateId = crypto.randomUUID();
+    const duplicateTitle = createDuplicateTitle(sourceCard.title);
+    const insertedState = addCard(state, duplicateId, {
+      title: duplicateTitle,
+      description: sourceCard.description,
+      labels: sourceCard.labels ?? [],
+      columnId: sourceCard.columnId,
+    });
+    const columnCards = insertedState.cards.filter(
+      (candidate) => candidate.columnId === sourceCard.columnId,
+    );
+    const sourceIndex = columnCards.findIndex((candidate) => candidate.id === sourceCard.id);
+    const nextSourceCard = columnCards[sourceIndex + 1];
+    const nextState = placeCard(
+      insertedState,
+      duplicateId,
+      sourceCard.columnId,
+      nextSourceCard?.id ?? null,
+    );
+
+    commitState(nextState, "Card duplicated.");
   }
 
   /**
@@ -412,6 +448,15 @@ export function createBoardController({
    */
   function getColumnTitle(columnId) {
     return COLUMNS.find((column) => column.id === columnId)?.title ?? columnId;
+  }
+
+  /**
+   * Creates a readable title for a duplicated card.
+   * @param {string} title Original card title.
+   * @returns {string} Duplicate-friendly title.
+   */
+  function createDuplicateTitle(title) {
+    return `${title} (Copy)`;
   }
 
   /**

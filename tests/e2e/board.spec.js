@@ -72,6 +72,22 @@ test("creates, edits, moves, persists, and deletes a card", async ({ page }) => 
   await expect(page.locator(".card", { hasText: "Production checklist" })).toHaveCount(0);
 });
 
+test("duplicates a card and preserves its labels", async ({ page }) => {
+  await createCard(page, "Copy me", "Keep these details", "doing", "copy, labels");
+  await page.locator(".card", { hasText: "Copy me" }).getByRole("button", { name: "Duplicate" }).click();
+
+  const originalCard = page.locator(".card", { hasText: "Copy me" }).first();
+  const duplicateCard = page.locator(".card", { hasText: "Copy me (Copy)" });
+  const copiedCards = page.locator('[data-column-id="doing"] .card', {
+    hasText: "Copy me",
+  });
+
+  await expect(originalCard).toBeVisible();
+  await expect(duplicateCard).toBeVisible();
+  await expect(duplicateCard.locator(".card__label")).toHaveText(["copy", "labels"]);
+  await expect(copiedCards).toHaveCount(2);
+});
+
 test("imports a JSON backup through the public dialog workflow", async ({ page }) => {
   const backup = {
     cards: [
@@ -204,6 +220,7 @@ test("preserves keyboard and mouse ordering after reload", async ({ page }) => {
  * @param {string} title Card title.
  * @param {string} description Card description.
  * @param {string} columnId Destination column identifier.
+ * @param {string} [labels=""] Optional comma-separated labels.
  * @returns {Promise<void>}
  */
 async function createCard(page, title, description, columnId, labels = "") {
