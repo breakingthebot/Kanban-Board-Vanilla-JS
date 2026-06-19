@@ -16,6 +16,13 @@ test("renders a usable board without serious accessibility violations", async ({
   page,
 }) => {
   await expect(page.getByRole("heading", { name: "Kanban Board" })).toBeVisible();
+  await expect(page.getByRole("region", { name: "Board summary" })).toBeVisible();
+  await expect(page.getByText("Total cards")).toBeVisible();
+  await expect(page.getByText("Visible cards")).toBeVisible();
+  await expect(page.getByText("Board state")).toBeVisible();
+  await expect(page.locator("#board-summary-total")).toHaveText("3");
+  await expect(page.locator("#board-summary-visible")).toHaveText("3");
+  await expect(page.locator("#board-summary-filter")).toHaveText("All cards visible.");
   await expect(page.locator(".column")).toHaveCount(3);
   await expect(page.locator(".card")).toHaveCount(3);
 
@@ -174,6 +181,8 @@ test("filters cards with the search field and clears the filter", async ({ page 
   await search.fill("planning");
   await expect(page.locator(".card")).toHaveCount(1);
   await expect(page.locator(".card", { hasText: "Review project requirements" })).toBeVisible();
+  await expect(page.locator("#board-summary-visible")).toHaveText("1");
+  await expect(page.locator("#board-summary-filter")).toHaveText('Filtering by "planning".');
   await expect(summary).toContainText('1 of 3 cards match "planning".');
   await expect(summary).toContainText("To do: 1");
   await expect(summary).toContainText("In progress: 0");

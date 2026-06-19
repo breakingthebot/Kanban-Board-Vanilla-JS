@@ -13,6 +13,8 @@ All notable changes to this project are documented here.
 
 ### Added
 
+- Compact summary strip with total, visible, and filter state counts.
+- Lighter typography and iconified board controls for a calmer visual hierarchy.
 - Color-coded columns and card accents for a faster-scanning board layout.
 - Card duplication with preserved labels and duplicate placement near the source card.
 - Card labels with persistence, display chips, and label-aware search.
@@ -32,6 +34,7 @@ All notable changes to this project are documented here.
 
 ### Changed
 
+- Package version bumped to 1.14.0 for the compact-summary release.
 - Package version bumped to 1.13.0 for the visual refresh release.
 - Package version bumped to 1.12.0 for the card-duplication release.
 - Package version bumped to 1.11.0 for the card-labels release.
@@ -39,6 +42,14 @@ All notable changes to this project are documented here.
 - Package version bumped to 1.10.0 for the search-summary release.
 - README now documents the branch-based development workflow.
 - Browser tests now scope column assertions to an exact `data-column-id` target.
+
+## [1.14.0] - 2026-06-18
+
+### Added
+
+- Compact summary strip above the board.
+- Icon labels for primary board actions.
+- Typography and spacing polish for the board shell and cards.
 
 ## [1.13.0] - 2026-06-18
 

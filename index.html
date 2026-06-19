@@ -29,25 +29,46 @@
       </div>
       <div class="header-actions">
         <button id="create-card" class="button button--primary" type="button">
-          Create card
+          <span class="button__icon" aria-hidden="true">＋</span>
+          <span class="button__label">Create card</span>
         </button>
         <button id="import-board" class="button button--secondary" type="button">
-          Import board
+          <span class="button__icon" aria-hidden="true">⇪</span>
+          <span class="button__label">Import board</span>
         </button>
         <button id="export-board" class="button button--secondary" type="button">
-          Export board
+          <span class="button__icon" aria-hidden="true">⇣</span>
+          <span class="button__label">Export board</span>
         </button>
         <button id="undo-board" class="button button--secondary" type="button">
-          Undo
+          <span class="button__icon" aria-hidden="true">↶</span>
+          <span class="button__label">Undo</span>
         </button>
         <button id="redo-board" class="button button--secondary" type="button">
-          Redo
+          <span class="button__icon" aria-hidden="true">↷</span>
+          <span class="button__label">Redo</span>
         </button>
         <button id="reset-board" class="button button--secondary" type="button">
-          Reset board
+          <span class="button__icon" aria-hidden="true">↺</span>
+          <span class="button__label">Reset board</span>
         </button>
       </div>
     </header>
+
+    <section class="board-summary" aria-label="Board summary">
+      <div class="board-summary__item">
+        <span class="board-summary__label">Total cards</span>
+        <strong id="board-summary-total" class="board-summary__value">0</strong>
+      </div>
+      <div class="board-summary__item">
+        <span class="board-summary__label">Visible cards</span>
+        <strong id="board-summary-visible" class="board-summary__value">0</strong>
+      </div>
+      <div class="board-summary__item board-summary__item--wide">
+        <span class="board-summary__label">Board state</span>
+        <strong id="board-summary-filter" class="board-summary__value">Loading board…</strong>
+      </div>
+    </section>
 
     <section class="board-toolbar" aria-label="Board search">
       <label class="search-field" for="board-search">Search cards</label>
@@ -61,7 +82,8 @@
           autocomplete="off"
         />
         <button id="clear-search" class="button button--secondary" type="button">
-          Clear search
+          <span class="button__icon" aria-hidden="true">✕</span>
+          <span class="button__label">Clear search</span>
         </button>
       </div>
       <p

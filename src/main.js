@@ -7,6 +7,9 @@ import { createBoardController } from "./services/board-controller.js";
 
 const boardElement = document.querySelector("#board");
 const statusElement = document.querySelector("#board-status");
+const boardSummaryTotalElement = document.querySelector("#board-summary-total");
+const boardSummaryVisibleElement = document.querySelector("#board-summary-visible");
+const boardSummaryFilterElement = document.querySelector("#board-summary-filter");
 const searchInput = document.querySelector("#board-search");
 const clearSearchButton = document.querySelector("#clear-search");
 const searchSummaryElement = document.querySelector("#search-summary");
@@ -22,6 +25,9 @@ const backupDialogElement = document.querySelector("#board-backup-dialog");
 if (
   !boardElement ||
   !statusElement ||
+  !boardSummaryTotalElement ||
+  !boardSummaryVisibleElement ||
+  !boardSummaryFilterElement ||
   !searchInput ||
   !clearSearchButton ||
   !searchSummaryElement ||
@@ -40,6 +46,9 @@ if (
 const controller = createBoardController({
   boardElement,
   statusElement,
+  boardSummaryTotalElement,
+  boardSummaryVisibleElement,
+  boardSummaryFilterElement,
   searchInput,
   clearSearchButton,
   searchSummaryElement,

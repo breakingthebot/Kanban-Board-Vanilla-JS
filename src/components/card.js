@@ -139,7 +139,7 @@ function createEditButton(cardId, onEdit) {
   const button = document.createElement("button");
   button.className = "text-button";
   button.type = "button";
-  button.textContent = "Edit";
+  button.append(createButtonIcon("✎"), createButtonLabel("Edit"));
   button.addEventListener("click", () => onEdit(cardId));
   return button;
 }
@@ -154,9 +154,34 @@ function createDuplicateButton(cardId, onDuplicate) {
   const button = document.createElement("button");
   button.className = "text-button";
   button.type = "button";
-  button.textContent = "Duplicate";
+  button.append(createButtonIcon("⧉"), createButtonLabel("Duplicate"));
   button.addEventListener("click", () => onDuplicate(cardId));
   return button;
+}
+
+/**
+ * Creates the decorative icon used inside a text button.
+ * @param {string} icon Visual icon character.
+ * @returns {HTMLSpanElement} Icon span.
+ */
+function createButtonIcon(icon) {
+  const span = document.createElement("span");
+  span.className = "button__icon";
+  span.setAttribute("aria-hidden", "true");
+  span.textContent = icon;
+  return span;
+}
+
+/**
+ * Creates the visible text used inside a text button.
+ * @param {string} label Button label.
+ * @returns {HTMLSpanElement} Text span.
+ */
+function createButtonLabel(label) {
+  const span = document.createElement("span");
+  span.className = "button__label";
+  span.textContent = label;
+  return span;
 }
 
 /**

@@ -26,6 +26,9 @@ import { createCardDragManager } from "./card-drag.js";
  * @param {object} dependencies Controller dependencies.
  * @param {HTMLElement} dependencies.boardElement Board container.
  * @param {HTMLElement} dependencies.statusElement Live status region.
+ * @param {HTMLElement} dependencies.boardSummaryTotalElement Summary total counter.
+ * @param {HTMLElement} dependencies.boardSummaryVisibleElement Summary visible counter.
+ * @param {HTMLElement} dependencies.boardSummaryFilterElement Summary filter status.
  * @param {HTMLInputElement} dependencies.searchInput Search field.
  * @param {HTMLButtonElement} dependencies.clearSearchButton Search reset control.
  * @param {HTMLElement} dependencies.searchSummaryElement Search summary region.
@@ -43,6 +46,9 @@ import { createCardDragManager } from "./card-drag.js";
 export function createBoardController({
   boardElement,
   statusElement,
+  boardSummaryTotalElement,
+  boardSummaryVisibleElement,
+  boardSummaryFilterElement,
   searchInput,
   clearSearchButton,
   searchSummaryElement,
@@ -109,6 +115,7 @@ export function createBoardController({
     boardElement.replaceChildren();
     const matchingCards = filterCardsByQuery(state.cards, searchQuery);
     const searchSummary = summarizeBoardSearch(state.cards, searchQuery);
+    renderBoardSummary(searchSummary, matchingCards.length);
     renderSearchSummary(searchSummary);
     COLUMNS.forEach((column, index) => {
       const cards = matchingCards.filter((card) => card.columnId === column.id);
@@ -374,6 +381,28 @@ export function createBoardController({
       .map((column) => `${column.title}: ${column.count}`)
       .join(" | ");
     searchSummaryElement.append(document.createTextNode(` ${countsText}`));
+  }
+
+  /**
+   * Updates the compact summary strip above the board.
+   * @param {{
+   *   isFiltering: boolean,
+   *   normalizedQuery: string,
+   *   totalMatches: number,
+   *   totalCards: number,
+   *   columnMatches: Array<{id: string, title: string, count: number}>
+   * }} summary Search summary payload.
+   * @param {number} visibleCount Number of visible cards after filtering.
+   * @returns {void}
+   */
+  function renderBoardSummary(summary, visibleCount) {
+    boardSummaryTotalElement.textContent = String(summary.totalCards);
+    boardSummaryVisibleElement.textContent = String(visibleCount);
+    boardSummaryFilterElement.textContent = summary.isFiltering
+      ? summary.totalMatches === 0
+        ? `No cards match "${summary.normalizedQuery}".`
+        : `Filtering by "${summary.normalizedQuery}".`
+      : "All cards visible.";
   }
 
   /**
