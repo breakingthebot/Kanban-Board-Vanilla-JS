@@ -51,7 +51,7 @@ The first command validates every JavaScript file and runs unit tests. The secon
 4. Deploy a Vercel preview and manually verify the documented workflows.
 5. Deploy production with `vercel.cmd --prod` on Windows or `vercel --prod` elsewhere.
 6. Add the production URL to `README.md` when it changes.
-7. Create an annotated Git tag matching the package version, such as `v1.9.0`.
+7. Create an annotated Git tag matching the package version, such as `v1.10.0`.
 8. Push the tag and create GitHub release notes from the matching changelog entry.
 
 Never tag a release while required checks are pending or failing.

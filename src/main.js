@@ -9,6 +9,7 @@ const boardElement = document.querySelector("#board");
 const statusElement = document.querySelector("#board-status");
 const searchInput = document.querySelector("#board-search");
 const clearSearchButton = document.querySelector("#clear-search");
+const searchSummaryElement = document.querySelector("#search-summary");
 const importButton = document.querySelector("#import-board");
 const exportButton = document.querySelector("#export-board");
 const undoButton = document.querySelector("#undo-board");
@@ -23,6 +24,7 @@ if (
   !statusElement ||
   !searchInput ||
   !clearSearchButton ||
+  !searchSummaryElement ||
   !importButton ||
   !exportButton ||
   !undoButton ||
@@ -40,6 +42,7 @@ const controller = createBoardController({
   statusElement,
   searchInput,
   clearSearchButton,
+  searchSummaryElement,
   importButton,
   exportButton,
   undoButton,

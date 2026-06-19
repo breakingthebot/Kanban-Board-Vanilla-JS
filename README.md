@@ -22,6 +22,7 @@ A responsive, dependency-free Kanban board for creating, editing, deleting, movi
 - Session-based undo and redo controls
 - Keyboard shortcuts for undo and redo
 - Live search across card titles and descriptions
+- Search summaries with per-column match counts
 
 No database or runtime framework is required.
 
@@ -69,7 +70,7 @@ npm run test:e2e
 
 GitHub Actions runs the same command on every push and pull request using Node.js 22.
 
-Export the current board from the header controls to download a JSON backup. Use the import control to paste a backup back into the board, or load a `.json` file, and replace the current saved state. Use the undo and redo controls or the keyboard shortcuts to step through recent board changes during the current browser session. Use search to filter cards by words in the title or description.
+Export the current board from the header controls to download a JSON backup. Use the import control to paste a backup back into the board, or load a `.json` file, and replace the current saved state. Use the undo and redo controls or the keyboard shortcuts to step through recent board changes during the current browser session. Use search to filter cards by words in the title or description, and read the summary to see how many cards matched in each column.
 
 ## Development Workflow
 
@@ -81,7 +82,7 @@ Production deployment is managed through the Vercel CLI. The deployed URL is add
 
 ## Architecture Notes
 
-The app is a small browser board with three clear layers. Configuration defines the columns and starter cards. Pure model functions validate, order, and move cards without touching the page, while storage owns serialization to one versioned `localStorage` key. A separate backup service turns the current board state into JSON and validates backups before they replace the active state. A lightweight history service tracks session-only undo and redo points so users can reverse recent edits without changing the saved schema, and the controller also listens for keyboard shortcuts so the same history works without buttons. A small search service filters cards in memory by title or description without mutating board state. UI components create DOM elements with `textContent`; a dedicated drag service translates mouse, touch, and pen gestures into placements; and the controller coordinates state, rendering, persistence, feedback, backup actions, history, and search. Unit tests cover isolated rules, while Playwright exercises complete desktop and mobile workflows and Axe checks WCAG-impacting accessibility failures.
+The app is a small browser board with three clear layers. Configuration defines the columns and starter cards. Pure model functions validate, order, and move cards without touching the page, while storage owns serialization to one versioned `localStorage` key. A separate backup service turns the current board state into JSON and validates backups before they replace the active state. A lightweight history service tracks session-only undo and redo points so users can reverse recent edits without changing the saved schema, and the controller also listens for keyboard shortcuts so the same history works without buttons. A small search service filters cards in memory by title or description and another helper summarizes the visible matches per column. UI components create DOM elements with `textContent`; a dedicated drag service translates mouse, touch, and pen gestures into placements; and the controller coordinates state, rendering, persistence, feedback, backup actions, history, and search. Unit tests cover isolated rules, while Playwright exercises complete desktop and mobile workflows and Axe checks WCAG-impacting accessibility failures.
 
 ## Usage
 
@@ -94,6 +95,7 @@ The app is a small browser board with three clear layers. Configuration defines 
 - Use **Undo** and **Redo** to move through recent board changes in the current session.
 - Press `Ctrl+Z` or `Cmd+Z` to undo, and `Ctrl+Y` or `Cmd+Shift+Z` to redo.
 - Type in the search field to filter cards, and clear it to bring the full board back.
+- Read the search summary to see per-column counts and whether anything matched.
 - Select **Edit** on a card to update its content, column, or delete it.
 - Reload the page to confirm card positions persist.
 - Select **Reset board** to restore the sample cards.
@@ -109,6 +111,7 @@ The app is a small browser board with three clear layers. Configuration defines 
 - Undo and redo history is session-only and clears on reload.
 - Keyboard shortcuts follow the same session-only undo and redo history.
 - Search is live and session-only; it never changes the saved board data.
+- Search summaries are derived from the currently visible matching cards and clear automatically when the search is cleared.
 - Vercel responses apply CSP, referrer, permissions, and MIME-sniffing security headers.
 
 ## License

@@ -90,6 +90,17 @@ button:focus-visible,
   outline: 3px solid #d6e0ff;
 }
 
+.search-summary {
+  margin-bottom: 0;
+  color: var(--muted);
+  font-size: 0.875rem;
+  line-height: 1.45;
+}
+
+.search-summary--empty {
+  color: var(--danger);
+}
+
 h1,
 h2,
 h3,

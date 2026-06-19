@@ -144,14 +144,24 @@ test("uses keyboard shortcuts to undo and redo without affecting text inputs", a
 
 test("filters cards with the search field and clears the filter", async ({ page }) => {
   const search = page.getByLabel("Search cards");
+  const summary = page.getByRole("status", { name: "Board search" });
 
   await search.fill("responsive");
   await expect(page.locator(".card")).toHaveCount(1);
   await expect(page.locator(".card", { hasText: "Build the board layout" })).toBeVisible();
+  await expect(summary).toContainText('1 of 3 cards match "responsive".');
+  await expect(summary).toContainText("To do: 0");
+  await expect(summary).toContainText("In progress: 1");
+  await expect(summary).toContainText("Done: 0");
+
+  await search.fill("missing");
+  await expect(page.locator(".card")).toHaveCount(0);
+  await expect(summary).toContainText('No cards match "missing".');
 
   await page.getByRole("button", { name: "Clear search" }).click();
   await expect(search).toHaveValue("");
   await expect(page.locator(".card")).toHaveCount(3);
+  await expect(summary).toContainText("3 cards on the board.");
 });
 
 test("preserves keyboard and mouse ordering after reload", async ({ page }) => {

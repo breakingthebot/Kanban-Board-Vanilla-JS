@@ -17,6 +17,7 @@ import {
 import { createBoardHistory } from "./board-history.js";
 import { deserializeBoardState, serializeBoardState } from "./board-backup.js";
 import { filterCardsByQuery } from "./board-search.js";
+import { summarizeBoardSearch } from "./board-search-summary.js";
 import { clearBoard, loadBoard, saveBoard } from "./board-storage.js";
 import { createCardDragManager } from "./card-drag.js";
 
@@ -27,6 +28,7 @@ import { createCardDragManager } from "./card-drag.js";
  * @param {HTMLElement} dependencies.statusElement Live status region.
  * @param {HTMLInputElement} dependencies.searchInput Search field.
  * @param {HTMLButtonElement} dependencies.clearSearchButton Search reset control.
+ * @param {HTMLElement} dependencies.searchSummaryElement Search summary region.
  * @param {HTMLButtonElement} dependencies.importButton Import control.
  * @param {HTMLButtonElement} dependencies.exportButton Export control.
  * @param {HTMLButtonElement} dependencies.undoButton Undo control.
@@ -43,6 +45,7 @@ export function createBoardController({
   statusElement,
   searchInput,
   clearSearchButton,
+  searchSummaryElement,
   importButton,
   exportButton,
   undoButton,
@@ -105,7 +108,8 @@ export function createBoardController({
   function render() {
     boardElement.replaceChildren();
     const matchingCards = filterCardsByQuery(state.cards, searchQuery);
-    const isFiltering = searchQuery.trim().length > 0;
+    const searchSummary = summarizeBoardSearch(state.cards, searchQuery);
+    renderSearchSummary(searchSummary);
     COLUMNS.forEach((column, index) => {
       const cards = matchingCards.filter((card) => card.columnId === column.id);
       boardElement.append(
@@ -117,7 +121,7 @@ export function createBoardController({
           moveByDirection,
           reorderByDirection,
           openCardEditor,
-          isFiltering ? "No matching cards" : undefined,
+          searchSummary.isFiltering ? "No matching cards" : undefined,
         ),
       );
     });
@@ -301,6 +305,39 @@ export function createBoardController({
     searchInput.value = "";
     render();
     searchInput.focus();
+  }
+
+  /**
+   * Updates the live search summary text to reflect the current filter state.
+   * @param {{
+   *   isFiltering: boolean,
+   *   normalizedQuery: string,
+   *   totalMatches: number,
+   *   totalCards: number,
+   *   columnMatches: Array<{id: string, title: string, count: number}>
+   * }} summary Search summary payload.
+   * @returns {void}
+   */
+  function renderSearchSummary(summary) {
+    searchSummaryElement.replaceChildren();
+    searchSummaryElement.classList.toggle("search-summary--empty", summary.isFiltering && summary.totalMatches === 0);
+
+    const text = summary.isFiltering
+      ? summary.totalMatches === 0
+        ? `No cards match "${summary.normalizedQuery}".`
+        : `${summary.totalMatches} of ${summary.totalCards} cards match "${summary.normalizedQuery}".`
+      : `${summary.totalCards} cards on the board.`;
+
+    searchSummaryElement.append(document.createTextNode(text));
+
+    if (!summary.isFiltering) {
+      return;
+    }
+
+    const countsText = summary.columnMatches
+      .map((column) => `${column.title}: ${column.count}`)
+      .join(" · ");
+    searchSummaryElement.append(document.createTextNode(` ${countsText}`));
   }
 
   /**

@@ -13,6 +13,8 @@ All notable changes to this project are documented here.
 
 ### Added
 
+- Search summary with per-column match counts and empty-result feedback.
+- Search summary service and tests for visible match counting.
 - Live board search across card titles and descriptions.
 - Search service and tests for matching cards by query.
 - Keyboard shortcuts for session undo and redo.
@@ -26,9 +28,16 @@ All notable changes to this project are documented here.
 
 ### Changed
 
-- Package version bumped to 1.9.0 for the search release.
+- Package version bumped to 1.10.0 for the search-summary release.
 - README now documents the branch-based development workflow.
 - Browser tests now scope column assertions to an exact `data-column-id` target.
+
+## [1.10.0] - 2026-06-18
+
+### Added
+
+- Search summary panel with per-column counts and no-results messaging.
+- Browser coverage for the search summary panel.
 
 ## [1.9.0] - 2026-06-18
 
