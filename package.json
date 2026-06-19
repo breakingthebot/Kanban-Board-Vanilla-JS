@@ -1,6 +1,6 @@
 {
   "name": "kanban-board-vanilla-js",
-  "version": "1.17.0",
+  "version": "1.17.1",
   "description": "A dependency-free Kanban board with persistent drag-and-drop cards.",
   "private": true,
   "type": "module",

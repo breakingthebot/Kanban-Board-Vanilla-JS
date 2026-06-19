@@ -13,6 +13,7 @@ All notable changes to this project are documented here.
 
 ### Added
 
+- Production deployment at `https://kanban-board-vanilla-js.vercel.app`.
 - Due-date filtering buttons for all, overdue, and due-soon cards.
 - Due dates with overdue badges and editor support.
 - Compact summary strip with total, visible, and filter state counts.
@@ -36,6 +37,7 @@ All notable changes to this project are documented here.
 
 ### Changed
 
+- Package version bumped to 1.17.1 for the initial production deployment.
 - Package version bumped to 1.17.0 for the due-date filter release.
 - Package version bumped to 1.16.0 for the due-date follow-up release.
 - Package version bumped to 1.15.0 for the due-date release.
